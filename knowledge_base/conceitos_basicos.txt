@@ -1,0 +1,4 @@
+Ativo circulante representa bens e direitos com expectativa de realizacao no curto prazo.
+Passivo circulante representa obrigacoes exigiveis no curto prazo.
+DRE significa Demonstracao do Resultado do Exercicio e resume receitas, custos e despesas de um periodo.
+Conciliacao contabil compara saldos internos com documentos ou extratos para identificar divergencias.
