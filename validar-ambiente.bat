@@ -38,8 +38,19 @@ if exist ".venv\Scripts\python.exe" (
     echo [ERRO] Ambiente virtual nao encontrado.
 )
 
+where npm.cmd >nul 2>nul
+if errorlevel 1 (
+    echo [AVISO] Node.js/npm nao encontrados. O frontend React nao podera subir ainda.
+) else (
+    echo [OK] Node.js/npm encontrados.
+    if exist "frontend\package.json" (
+        echo [OK] Frontend React detectado em frontend\package.json
+    )
+)
+
 echo.
 echo URL esperada da API: http://127.0.0.1:8010/docs
+echo URL esperada do frontend: http://127.0.0.1:5173
 echo.
 
 :end

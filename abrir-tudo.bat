@@ -37,5 +37,16 @@ if errorlevel 1 (
 echo Abrindo documentacao da API...
 start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 6; Start-Process 'http://127.0.0.1:8010/docs'"
 
+if exist "frontend\package.json" (
+    if exist "frontend\node_modules" (
+        echo Abrindo frontend React em http://127.0.0.1:5173 ...
+        start "Frontend React" cmd /k "cd /d ""%~dp0frontend"" && npm.cmd run dev"
+        start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 8; Start-Process 'http://127.0.0.1:5173'"
+    ) else (
+        echo [AVISO] Frontend encontrado, mas as dependencias do Node ainda nao foram instaladas.
+        echo         Rode: cd frontend ^&^& npm.cmd install
+    )
+)
+
 echo Subindo API em http://127.0.0.1:8010 ...
-".venv\Scripts\python.exe" -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+".venv\Scripts\python.exe" -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload

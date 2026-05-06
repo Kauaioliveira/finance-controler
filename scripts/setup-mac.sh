@@ -23,13 +23,16 @@ fi
 
 echo "Instalando dependencias..."
 ".venv/bin/python" -m pip install --upgrade pip
-".venv/bin/python" -m pip install -r requirements.txt
+".venv/bin/python" -m pip install -r backend/requirements.txt
 
 if [ ! -f ".env" ]; then
-  cp .env.example .env
-  echo "Arquivo .env criado a partir de .env.example."
+  cp backend/.env.example .env
+  echo "Arquivo .env criado a partir de backend/.env.example."
 fi
 
 echo
 echo "Setup concluido."
 echo "Nao esqueça de ajustar OPENAI_API_KEY no arquivo .env."
+
+echo 'Para o frontend React, rode: cd frontend && npm install'
+

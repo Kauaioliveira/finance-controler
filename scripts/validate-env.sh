@@ -37,6 +37,13 @@ else
   exit 1
 fi
 
+if command -v npm >/dev/null 2>&1; then
+  echo "[OK] Node.js/npm encontrados."
+else
+  echo "[AVISO] Node.js/npm nao encontrados. O frontend React nao podera subir ainda."
+fi
+
 echo
 echo "URL esperada da API: http://127.0.0.1:8010/docs"
+echo "URL esperada do frontend: http://127.0.0.1:5173"
 echo

@@ -1,140 +1,139 @@
 # Guia do Colega
 
-Guia rapido para rodar, entender e evoluir o projeto `Assistente Contabil API`.
+Guia rapido para rodar, entender e evoluir o `Finance Controler`.
 
-## 1. Visao geral
+## Visao geral
 
-Este projeto implementa um assistente contabil com:
+O projeto esta dividido em duas camadas:
 
-- `FastAPI` para a API HTTP
-- `LangChain` para orquestrar o fluxo de chat
-- `OpenAI` para modelo de resposta e embeddings
-- `PostgreSQL + pgvector` para guardar documentos, chunks e historico
-- `Docker` para subir o banco localmente
+- `backend/`: API em `FastAPI + LangChain + PostgreSQL/pgvector`
+- `frontend/`: app em `React + TypeScript + Vite`
 
-Hoje o sistema faz:
+Capacidades atuais:
 
-- upload de documentos `PDF`, `DOCX`, `TXT` e `MD`
-- extracao de texto
-- chunking para RAG
-- geracao de embeddings
-- busca vetorial por similaridade
-- resposta com fontes e `confidence_hint`
-- historico de conversa por `session_id`
+- auth com `JWT + RBAC`
+- empresa e usuarios em modelo single-tenant preparado para crescer
+- RAG para documentos contabeis
+- historico de conversa com fontes estruturadas
+- upload e indexacao de `PDF`, `DOCX`, `TXT` e `MD`
+- importacao financeira por `CSV`
+- categorizacao automatica de transacoes
+- revisao manual de categoria e notas
+- finalizacao da analise
+- relatorio persistido por importacao
 
-## 2. Como rodar
+## Como rodar
 
-### Windows
+### 1. Preparar ambiente
 
-### Opcao mais pratica
+Na raiz do projeto:
 
-Abrir um PowerShell na pasta do projeto e rodar:
+```powershell
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r backend/requirements.txt
+cd frontend
+npm.cmd install
+cd ..
+copy backend\.env.example .env
+docker compose up -d postgres
+```
+
+### 2. Rodar migracao
+
+```powershell
+Set-Location "C:\Projects\Python aplicação teste\backend"
+..\.venv\Scripts\alembic.exe upgrade head
+```
+
+Se seu terminal reclamar do formato, rode pelo caminho ajustado para sua shell. O ponto principal e executar o `alembic upgrade head` dentro de `backend/`.
+
+### 3. Subir backend
 
 ```powershell
 Set-Location "C:\Projects\Python aplicação teste"
-.\validar-ambiente.bat
-.\abrir-tudo.bat
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload
 ```
 
-O que acontece:
+Links uteis:
 
-- valida Docker e `.venv`
-- sobe o PostgreSQL com `pgvector`
-- sobe a API em `http://127.0.0.1:8010`
-- abre a documentacao Swagger em `/docs`
+- [Swagger](http://127.0.0.1:8010/docs)
+- [Health](http://127.0.0.1:8010/health)
 
-### Opcao manual
+### 4. Subir frontend
+
+Em outro terminal:
 
 ```powershell
-Set-Location "C:\Projects\Python aplicação teste"
-docker compose up -d postgres
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+Set-Location "C:\Projects\Python aplicação teste\frontend"
+npm.cmd run dev
 ```
 
-### Para parar
+App React:
 
-```powershell
-.\parar-tudo.bat
-```
+- [http://127.0.0.1:5173](http://127.0.0.1:5173)
 
-### macOS
+## Credenciais iniciais
 
-Na primeira vez:
+No ambiente local, a app cria automaticamente:
 
-```bash
-cd "/caminho/do/projeto"
-chmod +x ./*.command ./scripts/*.sh
-./setup-mac.command
-```
+- empresa: `Finance Controler`
+- admin:
+  - email: `admin@finance-controler.local`
+  - senha: `Admin123!`
 
-Opcao mais pratica:
+Esses valores sao controlados pelo `.env` e devem ser trocados fora de ambiente local.
 
-```bash
-./validar-ambiente.command
-./abrir-tudo.command
-```
+## Variaveis importantes
 
-Opcao manual:
+Arquivo local principal:
 
-```bash
-docker compose up -d postgres
-./.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
-```
+- [`.env`](</C:\Projects\Python aplicação teste\.env>)
 
-Para parar:
+Campos mais importantes:
 
-```bash
-./parar-tudo.command
-```
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
+- `OPENAI_EMBEDDINGS_MODEL`
+- `DATABASE_URL`
+- `JWT_SECRET_KEY`
+- `ACCESS_TOKEN_MINUTES`
+- `REFRESH_TOKEN_DAYS`
+- `ALLOWED_ORIGINS`
+- `DEFAULT_PAGE_SIZE`
+- `MAX_PAGE_SIZE`
+- `SEED_COMPANY_NAME`
+- `SEED_ADMIN_EMAIL`
+- `SEED_ADMIN_PASSWORD`
 
-Se preferir terminal puro:
+Observacoes:
 
-```bash
-make setup
-make validate
-make dev
-make stop
-```
+- o backend aceita `.env` na raiz ou em `backend/.env`
+- o frontend usa [frontend/.env.example](</C:\Projects\Python aplicação teste\frontend\.env.example>) para a URL da API
 
-## 3. Requisitos locais
+## Endpoints principais
 
-- Python 3.14+
-- Docker Desktop funcionando
-- virtualizacao habilitada na BIOS/UEFI quando for Windows
-- `OPENAI_API_KEY` configurada no arquivo `.env`
+Arquivo das rotas:
 
-Sem chave real da OpenAI:
+- [backend/app/api/routes.py](</C:\Projects\Python aplicação teste\backend\app\api\routes.py>)
 
-- o `/chat` entra em `modo demo`
-- upload pode falhar ao indexar embeddings
-- a busca vetorial real nao fica completa
+### Auth
 
-## 4. Variaveis importantes do `.env`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `GET /auth/me`
 
-Arquivo atual: [`.env`](</C:\Projects\Python aplicação teste\.env>)
+### Usuarios
 
-Principais campos:
+- `GET /users`
+- `POST /users`
+- `PATCH /users/{user_id}`
+- `PATCH /users/{user_id}/password`
+- `PATCH /users/{user_id}/status`
 
-- `OPENAI_API_KEY`: chave real da OpenAI
-- `OPENAI_MODEL`: modelo de chat
-- `OPENAI_EMBEDDINGS_MODEL`: modelo de embeddings
-- `OPENAI_EMBEDDINGS_DIMENSIONS`: dimensao do vetor
-- `DATABASE_URL`: conexao do PostgreSQL
-- `DATABASE_CONNECT_TIMEOUT`: timeout de conexao
-- `RAG_TOP_K`: quantidade maxima de chunks recuperados
-- `RAG_MAX_DISTANCE`: limite de distancia para considerar chunk relevante
-- `DOCUMENT_CHUNK_SIZE`: tamanho do chunk
-- `DOCUMENT_CHUNK_OVERLAP`: sobreposicao entre chunks
-- `SOURCE_EXCERPT_LENGTH`: tamanho maximo do trecho retornado em `sources`
-- `MAX_UPLOAD_SIZE_MB`: limite de upload por arquivo
-- `ALLOWED_ORIGINS`: origens liberadas para frontend via CORS
+### Documentos e chat
 
-## 5. Endpoints principais
-
-Arquivo das rotas: [routes.py](</C:\Projects\Python aplicação teste\app\api\routes.py>)
-
-- `GET /health`
-- `GET /config`
 - `POST /chat`
 - `GET /sessions/{session_id}/history`
 - `POST /documents/upload`
@@ -143,227 +142,183 @@ Arquivo das rotas: [routes.py](</C:\Projects\Python aplicação teste\app\api\ro
 - `DELETE /documents/{document_id}`
 - `POST /documents/{document_id}/reindex`
 
-Contratos uteis para frontend:
+### Financas
 
-- `POST /chat` retorna `sources` estruturado com `filename`, `source_label`, `document_id`, `chunk_index`, `excerpt` e `score`
-- `GET /sessions/{session_id}/history` retorna `sources` e `confidence_hint` por mensagem
-- `GET /config` expone `allowed_origins`, `supported_extensions` e `max_upload_size_mb`
+- `GET /finance/categories`
+- `POST /finance/imports`
+- `GET /finance/imports`
+- `GET /finance/imports/{import_id}`
+- `GET /finance/imports/{import_id}/transactions`
+- `PATCH /finance/imports/{import_id}/transactions/{transaction_id}`
+- `POST /finance/imports/{import_id}/finalize`
+- `GET /finance/imports/{import_id}/report`
+- `POST /finance/analyze`
+  - legado para preview/dev helper
 
-## 6. Fluxo da aplicacao
+## Fluxo de backend
 
-### Inicializacao
+### Auth e autorizacao
 
-Entrada da API: [main.py](</C:\Projects\Python aplicação teste\app\main.py>)
+Arquivos principais:
 
-No startup:
-
-- a API cria a aplicacao FastAPI
-- registra as rotas
-- instala o handler de erro da aplicacao
-- chama `assistant_service.initialize()`
-- o `database.initialize()` tenta criar extensao `vector` e tabelas
-
-### Upload de documento
-
-Servico principal: [document_service.py](</C:\Projects\Python aplicação teste\app\services\document_service.py>)
-
-Fluxo:
-
-1. recebe o arquivo em `POST /documents/upload`
-2. usa [document_parser.py](</C:\Projects\Python aplicação teste\app\services\document_parser.py>) para extrair texto
-3. divide o texto em chunks com `RecursiveCharacterTextSplitter`
-4. gera embeddings com [embeddings.py](</C:\Projects\Python aplicação teste\app\services\embeddings.py>)
-5. salva documento e chunks em [document_repository.py](</C:\Projects\Python aplicação teste\app\repositories\document_repository.py>)
-
-### Chat
-
-Servico principal: [assistant.py](</C:\Projects\Python aplicação teste\app\services\assistant.py>)
+- [backend/app/core/security.py](</C:\Projects\Python aplicação teste\backend\app\core\security.py>)
+- [backend/app/services/auth_service.py](</C:\Projects\Python aplicação teste\backend\app\services\auth_service.py>)
+- [backend/app/api/dependencies.py](</C:\Projects\Python aplicação teste\backend\app\api\dependencies.py>)
 
 Fluxo:
 
-1. recebe `message` e `session_id`
-2. busca historico no [chat_repository.py](</C:\Projects\Python aplicação teste\app\repositories\chat_repository.py>)
-3. consulta chunks relevantes em [retrieval.py](</C:\Projects\Python aplicação teste\app\services\retrieval.py>)
-4. monta contexto documental
-5. chama `ChatOpenAI`
-6. salva pergunta e resposta no banco
+1. usuario faz login com email e senha
+2. backend gera `access_token` e `refresh_token`
+3. frontend guarda sessao local e renova token quando necessario
+4. dependencias protegem rotas por papel
 
-## 7. Estrutura da aplicacao
+### Chat e documentos
 
-### `app/api`
+Arquivos principais:
 
-- define os endpoints HTTP
+- [backend/app/services/assistant.py](</C:\Projects\Python aplicação teste\backend\app\services\assistant.py>)
+- [backend/app/services/document_service.py](</C:\Projects\Python aplicação teste\backend\app\services\document_service.py>)
+- [backend/app/services/retrieval.py](</C:\Projects\Python aplicação teste\backend\app\services\retrieval.py>)
+- [backend/app/repositories/document_repository.py](</C:\Projects\Python aplicação teste\backend\app\repositories\document_repository.py>)
 
-### `app/core`
+Fluxo:
 
-- configuracoes do projeto
-- excecoes de dominio e infraestrutura
+1. documento e recebido e parseado
+2. texto e quebrado em chunks
+3. embeddings sao gerados
+4. chunks vao para o PostgreSQL com `pgvector`
+5. o chat busca contexto, monta prompt e responde com `sources`
 
-### `app/repositories`
+### Operacao financeira persistida
 
-- acesso ao PostgreSQL
-- criacao de schema
-- consultas e persistencia
+Arquivos principais:
 
-### `app/schemas`
+- [backend/app/services/finance_parser.py](</C:\Projects\Python aplicação teste\backend\app\services\finance_parser.py>)
+- [backend/app/services/finance_service.py](</C:\Projects\Python aplicação teste\backend\app\services\finance_service.py>)
+- [backend/app/repositories/finance_repository.py](</C:\Projects\Python aplicação teste\backend\app\repositories\finance_repository.py>)
+- [backend/app/schemas/finance.py](</C:\Projects\Python aplicação teste\backend\app\schemas\finance.py>)
 
-- contratos de entrada e saida da API
+Fluxo:
 
-### `app/services`
+1. o frontend envia um `CSV`
+2. a API normaliza colunas como data, descricao e valor
+3. a importacao e persistida em `finance_imports`
+4. as transacoes vao para `finance_transactions`
+5. a API gera e salva um snapshot de relatorio
+6. o analista revisa categorias e notas
+7. a importacao pode ser finalizada
 
-- regra de negocio
-- parser de arquivos
-- embeddings
-- retrieval vetorial
-- orquestracao do chat
+## Fluxo do frontend
 
-## 8. Como mexer no codigo
+Arquivos principais:
 
-### Se quiser mudar o prompt do assistente
+- [frontend/src/App.tsx](</C:\Projects\Python aplicação teste\frontend\src\App.tsx>)
+- [frontend/src/auth/AuthContext.tsx](</C:\Projects\Python aplicação teste\frontend\src\auth\AuthContext.tsx>)
+- [frontend/src/lib/api.ts](</C:\Projects\Python aplicação teste\frontend\src\lib\api.ts>)
+- [frontend/src/styles.css](</C:\Projects\Python aplicação teste\frontend\src\styles.css>)
 
-Editar: [assistant.py](</C:\Projects\Python aplicação teste\app\services\assistant.py>)
+Telas:
 
-Ponto principal:
+- `/login`
+- `/app/overview`
+- `/app/imports`
+- `/app/imports/:importId/review`
+- `/app/imports/:importId/report`
+- `/app/settings/users`
 
-- constante `SYSTEM_PROMPT`
+Pontos importantes:
 
-### Se quiser mudar como os documentos sao quebrados em chunks
+- sessao centralizada em context
+- rotas protegidas por papel
+- cliente HTTP com refresh automatico
+- visual pensado como cockpit financeiro operacional
 
-Editar: [document_service.py](</C:\Projects\Python aplicação teste\app\services\document_service.py>)
+## Testes
 
-Ponto principal:
+Primeira bateria de testes incluida:
 
-- metodo `_build_chunks`
+- [backend/tests/test_api_auth_contracts.py](</C:\Projects\Python aplicação teste\backend\tests\test_api_auth_contracts.py>)
+- [backend/tests/test_finance_api.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_api.py>)
+- [backend/tests/test_finance_parser.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_parser.py>)
+- [backend/tests/test_finance_service_unit.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_service_unit.py>)
+- [backend/tests/test_auth_service_and_security.py](</C:\Projects\Python aplicação teste\backend\tests\test_auth_service_and_security.py>)
+- [backend/tests/test_user_service_unit.py](</C:\Projects\Python aplicação teste\backend\tests\test_user_service_unit.py>)
 
-### Se quiser aceitar outro tipo de arquivo
+Como rodar:
 
-Editar: [document_parser.py](</C:\Projects\Python aplicação teste\app\services\document_parser.py>)
+Windows:
 
-Pontos principais:
-
-- `SUPPORTED_DOCUMENT_EXTENSIONS`
-- metodo `parse`
-- criar parser novo se necessario
-
-### Se quiser mudar a regra de relevancia
-
-Editar: [retrieval.py](</C:\Projects\Python aplicação teste\app\services\retrieval.py>)
-
-Pontos principais:
-
-- filtro por `rag_max_distance`
-- calculo de `confidence_hint`
-
-### Se quiser adicionar campo novo na API
-
-Arquivos tipicos:
-
-- [schemas/chat.py](</C:\Projects\Python aplicação teste\app\schemas\chat.py>)
-- [schemas/document.py](</C:\Projects\Python aplicação teste\app\schemas\document.py>)
-- [routes.py](</C:\Projects\Python aplicação teste\app\api\routes.py>)
-- repositorio/servico correspondente
-
-## 9. Banco de dados
-
-Bootstrap do banco:
-
-- [compose.yaml](</C:\Projects\Python aplicação teste\compose.yaml>)
-- [01-enable-vector.sql](</C:\Projects\Python aplicação teste\docker\postgres\init\01-enable-vector.sql>)
-- [database.py](</C:\Projects\Python aplicação teste\app\repositories\database.py>)
-
-Tabelas principais:
-
-- `documents`
-- `document_chunks`
-- `chat_sessions`
-- `chat_messages`
-
-## 10. Como testar rapido
-
-### Health
-
-Abrir:
-
-- [http://127.0.0.1:8010/health](http://127.0.0.1:8010/health)
-
-### Swagger
-
-Abrir:
-
-- [http://127.0.0.1:8010/docs](http://127.0.0.1:8010/docs)
-
-### Upload de documento
-
-No Swagger:
-
-1. abrir `POST /documents/upload`
-2. clicar em `Try it out`
-3. enviar um arquivo
-4. executar
-
-### Chat
-
-Payload de exemplo:
-
-```json
-{
-  "message": "Explique o conteudo principal do documento enviado.",
-  "session_id": "teste-1"
-}
+```powershell
+.\rodar-testes.bat
 ```
 
-## 11. Problemas comuns
+Ou:
 
-### Docker nao sobe
+```powershell
+.\.venv\Scripts\python.exe -m pytest backend\tests --cov=backend\app --cov-report=term-missing
+```
 
-Verifique:
+macOS / Linux:
 
-- Docker Desktop aberto
-- virtualizacao habilitada
-- `validar-ambiente.bat`
+```bash
+./scripts/test-backend.sh
+```
 
-### PostgreSQL nao conecta
+Baseline atual:
 
-Verifique:
+- `33` testes passando
+- cobertura inicial do backend em `58%`
 
-- `docker compose ps`
-- porta `5432`
-- valor de `DATABASE_URL`
+Escopo coberto agora:
 
-### API sobe mas fica em modo demo
+- contratos de auth e erros padronizados
+- seguranca JWT e hash de senha
+- RBAC e regras de usuario
+- parser CSV financeiro
+- endpoints principais de importacao, review e relatorio via mocks
 
-Verifique:
+## Onde mexer
 
-- `OPENAI_API_KEY` ainda esta como `coloque_sua_chave_aqui`
+### Backend
 
-### Upload funciona mas a resposta nao usa contexto
+- `backend/app/api`: endpoints HTTP
+- `backend/app/core`: config, seguranca e excecoes
+- `backend/app/repositories`: acesso a banco
+- `backend/app/schemas`: contratos da API
+- `backend/app/services`: regra de negocio
+- `backend/alembic`: migracoes
 
-Verifique:
+### Frontend
 
-- se o documento foi indexado
-- se a chave OpenAI esta correta
-- se o `/documents` lista o arquivo
-- se `RAG_MAX_DISTANCE` nao esta muito restritivo
+- `frontend/src/pages`: telas de negocio
+- `frontend/src/components`: blocos visuais reutilizaveis
+- `frontend/src/auth`: sessao e auth
+- `frontend/src/lib`: cliente HTTP, formatacao e utilitarios
+- `frontend/src/styles.css`: design system
 
-## 12. Proximos passos recomendados
+## Atalhos
 
-Para evoluir com seguranca:
+Windows:
 
-1. adicionar autenticacao
-2. adicionar testes automatizados
-3. adicionar observabilidade e logs melhores
-4. criar ambiente de homologacao
-5. separar configuracoes de desenvolvimento e producao
+- [validar-ambiente.bat](</C:\Projects\Python aplicação teste\validar-ambiente.bat>)
+- [abrir-api.bat](</C:\Projects\Python aplicação teste\abrir-api.bat>)
+- [abrir-frontend.bat](</C:\Projects\Python aplicação teste\abrir-frontend.bat>)
+- [abrir-tudo.bat](</C:\Projects\Python aplicação teste\abrir-tudo.bat>)
+- [rodar-testes.bat](</C:\Projects\Python aplicação teste\rodar-testes.bat>)
 
-## 13. Arquivos mais importantes para onboarding
+macOS:
 
-- [README.md](</C:\Projects\Python aplicação teste\README.md>)
-- [Makefile](</C:\Projects\Python aplicação teste\Makefile>)
-- [main.py](</C:\Projects\Python aplicação teste\app\main.py>)
-- [routes.py](</C:\Projects\Python aplicação teste\app\api\routes.py>)
-- [assistant.py](</C:\Projects\Python aplicação teste\app\services\assistant.py>)
-- [document_service.py](</C:\Projects\Python aplicação teste\app\services\document_service.py>)
-- [retrieval.py](</C:\Projects\Python aplicação teste\app\services\retrieval.py>)
-- [database.py](</C:\Projects\Python aplicação teste\app\repositories\database.py>)
-- [scripts/setup-mac.sh](</C:\Projects\Python aplicação teste\scripts\setup-mac.sh>)
-- [scripts/start-dev.sh](</C:\Projects\Python aplicação teste\scripts\start-dev.sh>)
+- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>)
+- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>)
+- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>)
+- [abrir-frontend.command](</C:\Projects\Python aplicação teste\abrir-frontend.command>)
+- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>)
+- [rodar-testes.command](</C:\Projects\Python aplicação teste\rodar-testes.command>)
+
+## Proximos passos recomendados
+
+1. adicionar testes automatizados de backend
+2. adicionar testes de interface para o frontend
+3. exportar relatorios em PDF ou XLSX
+4. introduzir fila assincorna para uploads grandes
+5. integrar SSO corporativo

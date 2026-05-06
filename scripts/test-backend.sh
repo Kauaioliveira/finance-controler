@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ ! -x "$ROOT_DIR/.venv/bin/python" ]]; then
+  echo "Ambiente virtual nao encontrado em $ROOT_DIR/.venv/bin/python"
+  echo "Crie a virtualenv e instale as dependencias antes de rodar os testes."
+  exit 1
+fi
+
+cd "$ROOT_DIR"
+"$ROOT_DIR/.venv/bin/python" -m pytest backend/tests --cov=backend/app --cov-report=term-missing

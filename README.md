@@ -1,136 +1,158 @@
-# Assistente Contabil API
+# Finance Controler
 
-Assistente contábil com `FastAPI`, `LangChain`, `OpenAI` e `PostgreSQL + pgvector`.
+Produto interno para operacao financeira, com backend em `FastAPI + LangChain + PostgreSQL/pgvector` e frontend em `React + TypeScript + Vite`.
 
-Guia detalhado para onboarding e contribuicao:
+O projeto hoje cobre dois fluxos principais:
+
+- assistente contabil com RAG para documentos internos
+- cockpit financeiro para importar `CSV`, categorizar transacoes, revisar resultados e gerar relatorios persistidos
+
+Guia tecnico detalhado:
 
 - [docs/GUIA_DO_COLEGA.md](</C:\Projects\Python aplicação teste\docs\GUIA_DO_COLEGA.md>)
 
-## O que esta fase entrega
+## Arquitetura
 
-- API HTTP em FastAPI
-- upload de documentos via API
-- ingestão de `PDF`, `DOCX`, `TXT` e `MD`
-- indexação vetorial com embeddings da OpenAI
-- busca RAG com citação de fontes
-- histórico conversacional persistido em PostgreSQL
+```text
+backend/
+  alembic/
+  app/
+  requirements.txt
+frontend/
+  src/
+  package.json
+docker/
+docs/
+scripts/
+compose.yaml
+```
+
+### Backend
+
+- `FastAPI` como camada HTTP
+- `LangChain` no fluxo de chat com documentos
+- `PostgreSQL + pgvector` para persistencia relacional e busca vetorial
+- `JWT + RBAC` com papeis `admin`, `analyst` e `viewer`
+- `Alembic` para migracoes
+
+### Frontend
+
+- `React + TypeScript + Vite`
+- `React Router`
+- `Context + reducer` para sessao
+- cliente HTTP unico com refresh automatico de token
+- interface operacional para login, importacao, revisao e relatorio
 
 ## Requisitos
 
 - Python 3.14+
-- Docker Desktop com backend WSL 2
-- PostgreSQL com extensão `pgvector` via container
+- Node.js 20+
+- Docker Desktop
 
-## Configuração
+## Setup rapido
 
-### Windows
+Na raiz do projeto:
 
-1. Crie o ambiente virtual e instale as dependências:
-
-```cmd
+```powershell
 python -m venv .venv
-.venv\Scripts\activate.bat
-pip install -r requirements.txt
-copy .env.example .env
+.\.venv\Scripts\activate
+pip install -r backend/requirements.txt
+cd frontend
+npm.cmd install
+cd ..
+copy backend\.env.example .env
 ```
 
-2. Ajuste o arquivo `.env`:
+Variaveis mais importantes no [`.env`](</C:\Projects\Python aplicação teste\.env>):
 
 - `OPENAI_API_KEY`
 - `DATABASE_URL`
-- `OPENAI_EMBEDDINGS_MODEL`
+- `JWT_SECRET_KEY`
 - `ALLOWED_ORIGINS`
-- `MAX_UPLOAD_SIZE_MB`
+- `SEED_ADMIN_EMAIL`
+- `SEED_ADMIN_PASSWORD`
 
-Exemplo de `DATABASE_URL`:
+Observacoes:
 
-```text
-postgresql://postgres:postgres@localhost:5432/assistente_contabil
-```
+- o backend aceita `.env` tanto na raiz quanto em `backend/.env`
+- o frontend usa [frontend/.env.example](</C:\Projects\Python aplicação teste\frontend\.env.example>) para apontar a API
+- em ambiente real, troque imediatamente os valores default de seed e segredo JWT
 
-### macOS
+## Banco e migracoes
 
-Depois de clonar o projeto no Mac, rode uma vez:
-
-```bash
-cd "/caminho/do/projeto"
-chmod +x ./*.command ./scripts/*.sh
-./setup-mac.command
-```
-
-Atalhos executaveis no Mac:
-
-- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>)
-- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>)
-- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>)
-- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>)
-- [parar-tudo.command](</C:\Projects\Python aplicação teste\parar-tudo.command>)
-
-## Subindo o banco com Docker
-
-Depois que o Docker Desktop estiver instalado e aberto:
+Suba o PostgreSQL com `pgvector`:
 
 ```powershell
 docker compose up -d postgres
-docker compose ps
 ```
 
-Ou use o script do projeto:
+Rode a migracao inicial:
 
 ```powershell
-.\scripts\start-dev.ps1
+cd backend
+..\.venv\Scripts\alembic.exe upgrade head
 ```
 
-Para derrubar:
+Se preferir copiar exatamente:
 
 ```powershell
-.\scripts\stop-dev.ps1
+Set-Location "C:\Projects\Python aplicação teste\backend"
+..\.venv\Scripts\alembic.exe upgrade head
 ```
 
-## Atalhos práticos
+Importante:
 
-Se quiser usar com duplo clique ou um comando curto:
+- no ambiente local, o bootstrap da app tambem garante criacao de schema e seed do primeiro admin
+- o `Alembic` passa a ser o caminho recomendado para evolucao do schema
 
-### Windows
+## Rodando o backend
 
-- [abrir-tudo.bat](</C:\Projects\Python aplicação teste\abrir-tudo.bat>): sobe o PostgreSQL no Docker, abre `/docs` e inicia a API
-- [abrir-api.bat](</C:\Projects\Python aplicação teste\abrir-api.bat>): sobe só a API e abre `/docs`
-- [parar-tudo.bat](</C:\Projects\Python aplicação teste\parar-tudo.bat>): derruba os containers do projeto
-- [instalar-docker-admin.bat](</C:\Projects\Python aplicação teste\instalar-docker-admin.bat>): abre o bootstrap do Docker/WSL com elevação de administrador
-- [validar-ambiente.bat](</C:\Projects\Python aplicação teste\validar-ambiente.bat>): confere Docker, daemon e ambiente virtual
-
-### macOS
-
-- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>): prepara `.venv`, instala dependencias e cria `.env`
-- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>): confere Docker e ambiente virtual
-- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>): sobe PostgreSQL, abre `/docs` e inicia a API
-- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>): sobe so a API
-- [parar-tudo.command](</C:\Projects\Python aplicação teste\parar-tudo.command>): derruba os containers do projeto
-- `make setup`, `make validate`, `make dev`, `make stop`
-
-Fluxo mais simples para o dia a dia:
-
-1. Rode `instalar-docker-admin.bat` uma vez, se Docker/WSL ainda nao estiverem instalados.
-2. Depois use `abrir-tudo.bat`.
-3. Quando terminar, use `parar-tudo.bat`.
-
-Fluxo mais simples no Mac:
-
-1. Rode `chmod +x ./*.command ./scripts/*.sh` uma vez.
-2. Rode `./setup-mac.command`.
-3. Depois use `./abrir-tudo.command`.
-4. Quando terminar, use `./parar-tudo.command`.
-
-## Execução
-
-```cmd
-.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload
 ```
+
+Documentacao da API:
+
+- [http://127.0.0.1:8010/docs](http://127.0.0.1:8010/docs)
+
+## Rodando o frontend
+
+```powershell
+cd frontend
+npm.cmd run dev
+```
+
+Aplicacao web:
+
+- [http://127.0.0.1:5173](http://127.0.0.1:5173)
+
+## Seed inicial
+
+Em ambiente local, a aplicacao cria:
+
+- empresa default: `Finance Controler`
+- usuario admin default:
+  - email: `admin@finance-controler.local`
+  - senha: `Admin123!`
+
+Troque isso fora de ambiente local.
 
 ## Endpoints principais
 
-- `GET /health`
-- `GET /config`
+### Auth e usuarios
+
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `GET /users`
+- `POST /users`
+- `PATCH /users/{user_id}`
+- `PATCH /users/{user_id}/password`
+- `PATCH /users/{user_id}/status`
+
+### Documentos e chat contabil
+
 - `POST /chat`
 - `GET /sessions/{session_id}/history`
 - `POST /documents/upload`
@@ -139,72 +161,114 @@ Fluxo mais simples no Mac:
 - `DELETE /documents/{document_id}`
 - `POST /documents/{document_id}/reindex`
 
-## Melhorias para frontend
+### Operacao financeira
 
-- `POST /chat` agora retorna `sources` estruturado com `filename`, `document_id`, `chunk_index`, `excerpt`, `score` e `source_label`
-- `GET /sessions/{session_id}/history` retorna tambem `sources` e `confidence_hint` por mensagem
-- `CORS` pode ser controlado por `ALLOWED_ORIGINS`
-- uploads respeitam o limite configuravel `MAX_UPLOAD_SIZE_MB`
+- `GET /finance/categories`
+- `POST /finance/imports`
+- `GET /finance/imports`
+- `GET /finance/imports/{import_id}`
+- `GET /finance/imports/{import_id}/transactions`
+- `PATCH /finance/imports/{import_id}/transactions/{transaction_id}`
+- `POST /finance/imports/{import_id}/finalize`
+- `GET /finance/imports/{import_id}/report`
+- `POST /finance/analyze`
+  - endpoint legado de preview
 
-## Exemplos
+## Fluxo operacional
 
-### Enviar pergunta
+1. Fazer login no frontend.
+2. Importar um `CSV` de transacoes.
+3. Deixar a API categorizar e persistir a importacao.
+4. Revisar categorias e notas na tela de review.
+5. Finalizar a importacao.
+6. Consultar o relatorio persistido.
 
-```cmd
-curl -X POST http://127.0.0.1:8010/chat ^
-  -H "Content-Type: application/json" ^
-  -d "{\"message\":\"Explique o que e DRE.\",\"session_id\":\"sessao-1\"}"
-```
+## Testes
 
-### Upload de documento
+Primeira bateria de testes ja incluida no projeto:
 
-```cmd
-curl -X POST http://127.0.0.1:8010/documents/upload ^
-  -F "file=@C:\caminho\seu-documento.pdf"
-```
+- contratos principais da API
+- auth, seguranca JWT e regras de acesso
+- parser financeiro
+- fluxo de imports, review e relatorio com mocks estaveis
+- regras centrais de `AuthService` e `UserService`
 
-### Exemplo de `sources` no `/chat`
+Comandos principais:
 
-```json
-{
-  "answer": "Resumo da resposta...",
-  "session_id": "sessao-1",
-  "used_demo_mode": false,
-  "confidence_hint": "medium",
-  "sources": [
-    {
-      "filename": "politica-contabil.txt",
-      "source_label": "politica-contabil.txt#chunk-0",
-      "document_id": "uuid-do-documento",
-      "chunk_index": 0,
-      "excerpt": "Trecho resumido do documento usado como base...",
-      "score": 0.91
-    }
-  ]
-}
-```
-
-## Bootstrap de máquina Windows
-
-Se você abrir um PowerShell **como Administrador**, pode usar o script abaixo para preparar WSL + Docker Desktop:
+### Windows
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force
-.\scripts\windows-admin-bootstrap.ps1
+.\rodar-testes.bat
 ```
 
-O script:
+Ou direto:
 
-- habilita `WSL` e `VirtualMachinePlatform`
-- executa `wsl --install`
-- baixa o instalador oficial do Docker Desktop
-- instala o Docker Desktop usando backend `WSL 2`
+```powershell
+.\.venv\Scripts\python.exe -m pytest backend\tests --cov=backend\app --cov-report=term-missing
+```
 
-Depois disso, reinicie o Windows.
+### macOS / Linux
 
-## Observações
+```bash
+./scripts/test-backend.sh
+```
 
-- Sem `OPENAI_API_KEY`, o `/chat` entra em modo demo e os endpoints de indexação dependem de chave real.
-- Sem PostgreSQL acessível, a API responde com erro controlado de infraestrutura nos endpoints dependentes do banco.
-- Esta fase não inclui autenticação nem interface web dedicada.
-- Docker Desktop pode exigir licença paga em empresas maiores, conforme a política oficial da Docker.
+Ou:
+
+```bash
+make test-backend
+```
+
+Baseline atual da primeira bateria:
+
+- `33` testes passando
+- cobertura inicial do backend em `58%`
+
+Observacao:
+
+- essa cobertura ainda nao mira o projeto inteiro; ela cobre primeiro as areas de maior risco e mais valor de negocio
+- a proxima fase natural e expandir para documentos/RAG, repositórios com banco e frontend
+
+## Arquivo de exemplo
+
+Para testes rapidos:
+
+- [docs/examples/transactions-sample.csv](</C:\Projects\Python aplicação teste\docs\examples\transactions-sample.csv>)
+
+## Atalhos
+
+### Windows
+
+- [validar-ambiente.bat](</C:\Projects\Python aplicação teste\validar-ambiente.bat>)
+- [abrir-api.bat](</C:\Projects\Python aplicação teste\abrir-api.bat>)
+- [abrir-frontend.bat](</C:\Projects\Python aplicação teste\abrir-frontend.bat>)
+- [abrir-tudo.bat](</C:\Projects\Python aplicação teste\abrir-tudo.bat>)
+- [rodar-testes.bat](</C:\Projects\Python aplicação teste\rodar-testes.bat>)
+- [parar-tudo.bat](</C:\Projects\Python aplicação teste\parar-tudo.bat>)
+
+### macOS
+
+- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>)
+- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>)
+- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>)
+- [abrir-frontend.command](</C:\Projects\Python aplicação teste\abrir-frontend.command>)
+- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>)
+- [rodar-testes.command](</C:\Projects\Python aplicação teste\rodar-testes.command>)
+
+## Qualidade e proximos passos
+
+O projeto ja esta mais proximo de um piloto interno real, com:
+
+- separacao clara entre backend e frontend
+- autenticacao e autorizacao por papel
+- persistencia de importacoes financeiras
+- revisao manual antes de finalizacao
+- relatorios persistidos
+
+Evolucoes recomendadas depois desta fase:
+
+- testes automatizados de backend e frontend
+- exportacao de relatorios em PDF/XLSX
+- SSO corporativo
+- trilha de auditoria mais detalhada
+- filas assincornas para importacoes maiores

@@ -1,0 +1,11 @@
+data,descricao,valor,tipo
+2026-04-01,Recebimento cliente Alpha,12500.00,income
+2026-04-03,Google Ads campanha abril,-1850.40,expense
+2026-04-05,Aluguel escritorio,-3200.00,expense
+2026-04-07,OpenAI assinatura API,-420.90,expense
+2026-04-10,Pagamento folha operacional,-5400.00,expense
+2026-04-14,Recebimento cliente Beta,9800.00,income
+2026-04-18,Uber visita comercial,-96.30,expense
+2026-04-21,Internet fibra matriz,-189.90,expense
+2026-04-24,Contabilidade mensal,-890.00,expense
+2026-04-28,Rendimento aplicacao,142.55,income

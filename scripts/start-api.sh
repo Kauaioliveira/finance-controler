@@ -15,4 +15,4 @@ if command -v open >/dev/null 2>&1; then
 fi
 
 echo "Subindo apenas a API em http://127.0.0.1:8010 ..."
-exec ".venv/bin/python" -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+exec ".venv/bin/python" -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload

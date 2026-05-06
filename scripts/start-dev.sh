@@ -37,5 +37,19 @@ if command -v open >/dev/null 2>&1; then
   (sleep 4 && open "http://127.0.0.1:8010/docs") >/dev/null 2>&1 &
 fi
 
+if [ -f "frontend/package.json" ]; then
+  if ! command -v npm >/dev/null 2>&1; then
+    echo "[AVISO] npm nao encontrado. O frontend React nao sera iniciado."
+  elif [ ! -d "frontend/node_modules" ]; then
+    echo "[AVISO] frontend/node_modules nao encontrado. Rode: cd frontend && npm install"
+  else
+    echo "Subindo frontend React em http://127.0.0.1:5173 ..."
+    (cd "$ROOT_DIR/frontend" && npm run dev) >/dev/null 2>&1 &
+    if command -v open >/dev/null 2>&1; then
+      (sleep 6 && open "http://127.0.0.1:5173") >/dev/null 2>&1 &
+    fi
+  fi
+fi
+
 echo "Subindo API em http://127.0.0.1:8010 ..."
-exec ".venv/bin/python" -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --reload
+exec ".venv/bin/python" -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload
