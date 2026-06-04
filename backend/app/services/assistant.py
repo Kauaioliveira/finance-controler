@@ -37,14 +37,18 @@ class AssistantService:
     def initialize(self) -> None:
         database.initialize()
 
-    async def ask(self, payload: ChatRequest) -> ChatResponse:
+    async def ask(self, payload: ChatRequest, current_user: dict) -> ChatResponse:
         settings = get_settings()
-        history = self._get_history_messages(payload.session_id)
+        history = self._get_history_messages(
+            payload.session_id,
+            current_user,
+        )
 
         if settings.demo_mode:
             answer = self._build_demo_answer(payload.message)
             self._store_turn(
                 payload.session_id,
+                current_user,
                 payload.message,
                 answer,
                 sources=[],
@@ -84,6 +88,7 @@ class AssistantService:
         answer = self._extract_text(result)
         self._store_turn(
             payload.session_id,
+            current_user,
             payload.message,
             answer,
             sources=self._serialize_sources(retrieval.sources),
@@ -101,10 +106,12 @@ class AssistantService:
             confidence_hint=retrieval.confidence_hint,
         )
 
-    def get_session_history(self, session_id: str) -> SessionHistoryResponse:
+    def get_session_history(self, session_id: str, current_user: dict) -> SessionHistoryResponse:
         settings = get_settings()
         rows = self.repository.get_session_messages(
             session_id=session_id,
+            owner_user_id=current_user["id"],
+            company_id=current_user["company_id"],
             limit=settings.max_chat_history * 10,
         )
         return SessionHistoryResponse(
@@ -124,10 +131,12 @@ class AssistantService:
     def get_system_status(self) -> dict[str, str | bool]:
         return database.get_status()
 
-    def _get_history_messages(self, session_id: str) -> list[BaseMessage]:
+    def _get_history_messages(self, session_id: str, current_user: dict) -> list[BaseMessage]:
         settings = get_settings()
         rows = self.repository.get_session_messages(
             session_id=session_id,
+            owner_user_id=current_user["id"],
+            company_id=current_user["company_id"],
             limit=settings.max_chat_history * 2,
         )
         history: list[BaseMessage] = []
@@ -220,16 +229,18 @@ class AssistantService:
     def _store_turn(
         self,
         session_id: str,
+        current_user: dict,
         user_message: str,
         answer: str,
         *,
         sources: list[dict[str, object]],
         confidence_hint: str,
     ) -> None:
-        self.repository.save_message(session_id, "human", user_message)
-        self.repository.save_message(
+        self.repository.save_turn(
             session_id,
-            "ai",
+            current_user["id"],
+            current_user["company_id"],
+            user_message,
             answer,
             sources=sources,
             confidence_hint=confidence_hint,

@@ -10,6 +10,64 @@ from app.repositories.database import database
 
 
 class FinanceRepository:
+    def persist_import_bundle(
+        self,
+        *,
+        import_id: str,
+        company_id: str,
+        uploaded_by_user_id: str,
+        filename: str,
+        source_type: str,
+        status: str,
+        currency: str,
+        total_rows: int,
+        processed_rows: int,
+        transactions: list[dict[str, object]],
+        summary_json: dict[str, object],
+        categories_json: list[dict[str, object]],
+        monthly_json: list[dict[str, object]],
+        top_transactions_json: list[dict[str, object]],
+        insights_json: list[dict[str, object]],
+        narrative: str,
+    ) -> dict:
+        with database.connection() as connection:
+            self._insert_import(
+                connection,
+                import_id=import_id,
+                company_id=company_id,
+                uploaded_by_user_id=uploaded_by_user_id,
+                filename=filename,
+                source_type=source_type,
+                status=status,
+                currency=currency,
+                total_rows=total_rows,
+                processed_rows=0,
+            )
+            self._insert_transactions(
+                connection,
+                import_id=import_id,
+                transactions=transactions,
+            )
+            self._insert_snapshot(
+                connection,
+                import_id=import_id,
+                summary_json=summary_json,
+                categories_json=categories_json,
+                monthly_json=monthly_json,
+                top_transactions_json=top_transactions_json,
+                insights_json=insights_json,
+                narrative=narrative,
+            )
+            self._update_import_status(
+                connection,
+                import_id=import_id,
+                status=status,
+                processed_rows=processed_rows,
+                error_message=None,
+                finalized_at=None,
+            )
+            return self.get_import(company_id, import_id, connection=connection)
+
     def create_import(
         self,
         *,
@@ -25,36 +83,20 @@ class FinanceRepository:
     ) -> dict:
         import_id = str(uuid4())
         with database.connection() as connection:
-            connection.execute(
-                """
-                INSERT INTO finance_imports (
-                    id,
-                    company_id,
-                    uploaded_by_user_id,
-                    filename,
-                    source_type,
-                    status,
-                    currency,
-                    total_rows,
-                    processed_rows,
-                    error_message
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    import_id,
-                    company_id,
-                    uploaded_by_user_id,
-                    filename,
-                    source_type,
-                    status,
-                    currency,
-                    total_rows,
-                    processed_rows,
-                    error_message,
-                ),
+            self._insert_import(
+                connection,
+                import_id=import_id,
+                company_id=company_id,
+                uploaded_by_user_id=uploaded_by_user_id,
+                filename=filename,
+                source_type=source_type,
+                status=status,
+                currency=currency,
+                total_rows=total_rows,
+                processed_rows=processed_rows,
+                error_message=error_message,
             )
-        return self.get_import(company_id, import_id)
+            return self.get_import(company_id, import_id, connection=connection)
 
     def update_import_status(
         self,
@@ -66,22 +108,16 @@ class FinanceRepository:
         error_message: str | None = None,
         finalized_at: datetime | None = None,
     ) -> dict:
-        self._get_import_row(company_id, import_id)
         with database.connection() as connection:
-            connection.execute(
-                """
-                UPDATE finance_imports
-                SET
-                    status = %s,
-                    processed_rows = COALESCE(%s, processed_rows),
-                    error_message = %s,
-                    finalized_at = %s,
-                    updated_at = NOW()
-                WHERE id = %s
-                """,
-                (status, processed_rows, error_message, finalized_at, import_id),
+            self._update_import_status(
+                connection,
+                import_id=import_id,
+                status=status,
+                processed_rows=processed_rows,
+                error_message=error_message,
+                finalized_at=finalized_at,
             )
-        return self.get_import(company_id, import_id)
+            return self.get_import(company_id, import_id, connection=connection)
 
     def create_transactions(
         self,
@@ -90,42 +126,7 @@ class FinanceRepository:
         transactions: list[dict[str, object]],
     ) -> None:
         with database.connection() as connection:
-            for item in transactions:
-                connection.execute(
-                    """
-                    INSERT INTO finance_transactions (
-                        id,
-                        import_id,
-                        row_number,
-                        transaction_date,
-                        description,
-                        amount,
-                        direction,
-                        predicted_category,
-                        final_category,
-                        category_confidence,
-                        review_notes,
-                        reviewed_by_user_id,
-                        reviewed_at
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """,
-                    (
-                        str(uuid4()),
-                        import_id,
-                        item["row_number"],
-                        item["transaction_date"],
-                        item["description"],
-                        item["amount"],
-                        item["direction"],
-                        item["predicted_category"],
-                        item["final_category"],
-                        item["category_confidence"],
-                        item.get("review_notes"),
-                        item.get("reviewed_by_user_id"),
-                        item.get("reviewed_at"),
-                    ),
-                )
+            self._insert_transactions(connection, import_id=import_id, transactions=transactions)
 
     def create_snapshot(
         self,
@@ -140,32 +141,18 @@ class FinanceRepository:
     ) -> dict:
         snapshot_id = str(uuid4())
         with database.connection() as connection:
-            connection.execute(
-                """
-                INSERT INTO finance_report_snapshots (
-                    id,
-                    import_id,
-                    summary_json,
-                    categories_json,
-                    monthly_json,
-                    top_transactions_json,
-                    insights_json,
-                    narrative
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    snapshot_id,
-                    import_id,
-                    Jsonb(summary_json),
-                    Jsonb(categories_json),
-                    Jsonb(monthly_json),
-                    Jsonb(top_transactions_json),
-                    Jsonb(insights_json),
-                    narrative,
-                ),
+            self._insert_snapshot(
+                connection,
+                import_id=import_id,
+                summary_json=summary_json,
+                categories_json=categories_json,
+                monthly_json=monthly_json,
+                top_transactions_json=top_transactions_json,
+                insights_json=insights_json,
+                narrative=narrative,
+                snapshot_id=snapshot_id,
             )
-        return self.get_latest_snapshot(import_id)
+            return self.get_latest_snapshot(import_id, connection=connection)
 
     def list_imports(
         self,
@@ -259,42 +246,31 @@ class FinanceRepository:
             row = connection.execute(query, tuple(params)).fetchone()
         return int(row["total"])
 
-    def get_import(self, company_id: str, import_id: str) -> dict:
-        row = self._get_import_row(company_id, import_id)
-        latest_snapshot = self.get_latest_snapshot(import_id, raise_if_missing=False)
+    def get_import(self, company_id: str, import_id: str, connection=None) -> dict:
+        row = self._get_import_row(company_id, import_id, connection=connection)
+        latest_snapshot = self.get_latest_snapshot(
+            import_id,
+            raise_if_missing=False,
+            connection=connection,
+        )
         row["summary_json"] = latest_snapshot["summary_json"] if latest_snapshot else None
         row["categories_json"] = latest_snapshot["categories_json"] if latest_snapshot else []
         row["insights_json"] = latest_snapshot["insights_json"] if latest_snapshot else []
         return row
 
-    def _get_import_row(self, company_id: str, import_id: str) -> dict:
-        with database.connection() as connection:
-            row = connection.execute(
-                """
-                SELECT
-                    id,
-                    company_id,
-                    uploaded_by_user_id,
-                    (
-                        SELECT name
-                        FROM users
-                        WHERE users.id = finance_imports.uploaded_by_user_id
-                    ) AS uploaded_by_user_name,
-                    filename,
-                    source_type,
-                    status,
-                    currency,
-                    total_rows,
-                    processed_rows,
-                    error_message,
-                    created_at,
-                    updated_at,
-                    finalized_at
-                FROM finance_imports
-                WHERE id = %s AND company_id = %s
-                """,
-                (import_id, company_id),
-            ).fetchone()
+    def _get_import_row(self, company_id: str, import_id: str, connection=None) -> dict:
+        row = self._execute_get_import_row(
+            connection,
+            company_id=company_id,
+            import_id=import_id,
+        ) if connection is not None else None
+        if row is None:
+            with database.connection() as owned_connection:
+                row = self._execute_get_import_row(
+                    owned_connection,
+                    company_id=company_id,
+                    import_id=import_id,
+                )
         if row is None:
             raise NotFoundError("Importacao financeira nao encontrada.")
         return row
@@ -442,27 +418,227 @@ class FinanceRepository:
             finalized_at=finalized_at,
         )
 
-    def get_latest_snapshot(self, import_id: str, *, raise_if_missing: bool = True) -> dict | None:
-        with database.connection() as connection:
-            row = connection.execute(
-                """
-                SELECT
-                    id,
-                    import_id,
-                    summary_json,
-                    categories_json,
-                    monthly_json,
-                    top_transactions_json,
-                    insights_json,
-                    narrative,
-                    created_at
-                FROM finance_report_snapshots
-                WHERE import_id = %s
-                ORDER BY created_at DESC
-                LIMIT 1
-                """,
-                (import_id,),
-            ).fetchone()
+    def get_latest_snapshot(
+        self,
+        import_id: str,
+        *,
+        raise_if_missing: bool = True,
+        connection=None,
+    ) -> dict | None:
+        row = self._execute_get_latest_snapshot(connection, import_id=import_id) if connection is not None else None
+        if row is None:
+            with database.connection() as owned_connection:
+                row = self._execute_get_latest_snapshot(owned_connection, import_id=import_id)
         if row is None and raise_if_missing:
             raise NotFoundError("Snapshot do relatorio nao encontrado.")
         return row
+
+    def _insert_import(
+        self,
+        connection,
+        *,
+        import_id: str,
+        company_id: str,
+        uploaded_by_user_id: str,
+        filename: str,
+        source_type: str,
+        status: str,
+        currency: str,
+        total_rows: int,
+        processed_rows: int,
+        error_message: str | None = None,
+    ) -> None:
+        connection.execute(
+            """
+            INSERT INTO finance_imports (
+                id,
+                company_id,
+                uploaded_by_user_id,
+                filename,
+                source_type,
+                status,
+                currency,
+                total_rows,
+                processed_rows,
+                error_message
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                import_id,
+                company_id,
+                uploaded_by_user_id,
+                filename,
+                source_type,
+                status,
+                currency,
+                total_rows,
+                processed_rows,
+                error_message,
+            ),
+        )
+
+    def _insert_transactions(
+        self,
+        connection,
+        *,
+        import_id: str,
+        transactions: list[dict[str, object]],
+    ) -> None:
+        for item in transactions:
+            connection.execute(
+                """
+                INSERT INTO finance_transactions (
+                    id,
+                    import_id,
+                    row_number,
+                    transaction_date,
+                    description,
+                    amount,
+                    direction,
+                    predicted_category,
+                    final_category,
+                    category_confidence,
+                    review_notes,
+                    reviewed_by_user_id,
+                    reviewed_at
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    item.get("id", str(uuid4())),
+                    import_id,
+                    item["row_number"],
+                    item["transaction_date"],
+                    item["description"],
+                    item["amount"],
+                    item["direction"],
+                    item["predicted_category"],
+                    item["final_category"],
+                    item["category_confidence"],
+                    item.get("review_notes"),
+                    item.get("reviewed_by_user_id"),
+                    item.get("reviewed_at"),
+                ),
+            )
+
+    def _insert_snapshot(
+        self,
+        connection,
+        *,
+        import_id: str,
+        summary_json: dict[str, object],
+        categories_json: list[dict[str, object]],
+        monthly_json: list[dict[str, object]],
+        top_transactions_json: list[dict[str, object]],
+        insights_json: list[dict[str, object]],
+        narrative: str,
+        snapshot_id: str | None = None,
+    ) -> None:
+        connection.execute(
+            """
+            INSERT INTO finance_report_snapshots (
+                id,
+                import_id,
+                summary_json,
+                categories_json,
+                monthly_json,
+                top_transactions_json,
+                insights_json,
+                narrative
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                snapshot_id or str(uuid4()),
+                import_id,
+                Jsonb(summary_json),
+                Jsonb(categories_json),
+                Jsonb(monthly_json),
+                Jsonb(top_transactions_json),
+                Jsonb(insights_json),
+                narrative,
+            ),
+        )
+
+    def _update_import_status(
+        self,
+        connection,
+        *,
+        import_id: str,
+        status: str,
+        processed_rows: int | None = None,
+        error_message: str | None = None,
+        finalized_at: datetime | None = None,
+    ) -> None:
+        row = connection.execute(
+            """
+            UPDATE finance_imports
+            SET
+                status = %s,
+                processed_rows = COALESCE(%s, processed_rows),
+                error_message = %s,
+                finalized_at = %s,
+                updated_at = NOW()
+            WHERE id = %s
+            RETURNING id
+            """,
+            (status, processed_rows, error_message, finalized_at, import_id),
+        ).fetchone()
+        if row is None:
+            raise NotFoundError("Importacao financeira nao encontrada.")
+
+    def _execute_get_import_row(
+        self,
+        connection,
+        *,
+        company_id: str,
+        import_id: str,
+    ) -> dict | None:
+        return connection.execute(
+            """
+            SELECT
+                id,
+                company_id,
+                uploaded_by_user_id,
+                (
+                    SELECT name
+                    FROM users
+                    WHERE users.id = finance_imports.uploaded_by_user_id
+                ) AS uploaded_by_user_name,
+                filename,
+                source_type,
+                status,
+                currency,
+                total_rows,
+                processed_rows,
+                error_message,
+                created_at,
+                updated_at,
+                finalized_at
+            FROM finance_imports
+            WHERE id = %s AND company_id = %s
+            """,
+            (import_id, company_id),
+        ).fetchone()
+
+    def _execute_get_latest_snapshot(self, connection, *, import_id: str) -> dict | None:
+        return connection.execute(
+            """
+            SELECT
+                id,
+                import_id,
+                summary_json,
+                categories_json,
+                monthly_json,
+                top_transactions_json,
+                insights_json,
+                narrative,
+                created_at
+            FROM finance_report_snapshots
+            WHERE import_id = %s
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (import_id,),
+        ).fetchone()

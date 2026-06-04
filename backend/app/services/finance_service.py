@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from uuid import uuid4
 
 from fastapi import UploadFile
 from langchain_openai import ChatOpenAI
@@ -202,49 +203,56 @@ class FinanceService:
             raise
 
         transactions = [self._categorize_transaction(row) for row in rows]
-        import_row = self.repository.create_import(
-            company_id=current_user["company_id"],
-            uploaded_by_user_id=current_user["id"],
-            filename=filename,
-            source_type="csv",
-            status="uploaded",
-            currency="BRL",
-            total_rows=len(rows),
-            processed_rows=0,
-        )
-
-        self.repository.create_transactions(
-            import_id=import_row["id"],
-            transactions=[
-                {
-                    "row_number": item.row_number,
-                    "transaction_date": item.date,
-                    "description": item.description,
-                    "amount": item.amount,
-                    "direction": item.direction,
-                    "predicted_category": item.category,
-                    "final_category": item.category,
-                    "category_confidence": item.confidence,
-                    "review_notes": item.notes,
-                }
-                for item in transactions
-            ],
-        )
-
-        persisted_rows = self.repository.get_all_transactions(
-            company_id=current_user["company_id"],
-            import_id=import_row["id"],
-        )
+        import_id = str(uuid4())
         persisted_transactions = [
-            self._build_persisted_transaction(row) for row in persisted_rows
+            FinancePersistedTransaction(
+                id=str(uuid4()),
+                row_number=item.row_number,
+                transaction_date=item.date,
+                description=item.description,
+                amount=item.amount,
+                direction=item.direction,
+                predicted_category=item.category,
+                predicted_category_label=item.category_label,
+                final_category=item.category,
+                final_category_label=item.category_label,
+                category_confidence=item.confidence,
+                review_notes=item.notes,
+                reviewed_at=None,
+                reviewed_by_user_id=None,
+            )
+            for item in transactions
         ]
         report = await self._build_report_from_persisted(
             filename=filename,
             currency="BRL",
             transactions=persisted_transactions,
         )
-        self.repository.create_snapshot(
-            import_id=import_row["id"],
+        import_row = self.repository.persist_import_bundle(
+            import_id=import_id,
+            company_id=current_user["company_id"],
+            uploaded_by_user_id=current_user["id"],
+            filename=filename,
+            source_type="csv",
+            status="processed",
+            currency="BRL",
+            total_rows=len(rows),
+            processed_rows=len(rows),
+            transactions=[
+                {
+                    "id": item.id,
+                    "row_number": item.row_number,
+                    "transaction_date": item.transaction_date,
+                    "description": item.description,
+                    "amount": item.amount,
+                    "direction": item.direction,
+                    "predicted_category": item.predicted_category,
+                    "final_category": item.final_category,
+                    "category_confidence": item.category_confidence,
+                    "review_notes": item.review_notes,
+                }
+                for item in persisted_transactions
+            ],
             summary_json=report["summary"].model_dump(),
             categories_json=[item.model_dump() for item in report["categories"]],
             monthly_json=[item.model_dump() for item in report["monthly"]],
@@ -252,13 +260,7 @@ class FinanceService:
             insights_json=[item.model_dump() for item in report["insights"]],
             narrative=report["narrative"],
         )
-        updated = self.repository.update_import_status(
-            company_id=current_user["company_id"],
-            import_id=import_row["id"],
-            status="processed",
-            processed_rows=len(rows),
-        )
-        return self._build_import_response(updated)
+        return self._build_import_response(import_row)
 
     def list_imports(
         self,

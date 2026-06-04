@@ -1,6 +1,16 @@
 # Secrets and local environment
 !.env.example
 .env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
+*.pem
+*.p12
+credentials.json
+*-service-account*.json
+secrets/
 
 # Python
 __pycache__/
@@ -16,6 +26,8 @@ venv/
 # Local data and databases
 data/
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 
 # Logs

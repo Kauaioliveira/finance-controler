@@ -86,6 +86,8 @@ class PostgresDatabase:
             """
             CREATE TABLE IF NOT EXISTS chat_sessions (
                 session_id TEXT PRIMARY KEY,
+                owner_user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+                company_id TEXT REFERENCES companies(id) ON DELETE CASCADE,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             )
@@ -158,6 +160,10 @@ class PostgresDatabase:
                 "CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding "
                 "ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)"
             ),
+            "ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS owner_user_id TEXT REFERENCES users(id) ON DELETE CASCADE",
+            "ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS company_id TEXT REFERENCES companies(id) ON DELETE CASCADE",
+            "CREATE INDEX IF NOT EXISTS idx_chat_sessions_owner_user_id ON chat_sessions(owner_user_id)",
+            "CREATE INDEX IF NOT EXISTS idx_chat_sessions_company_id ON chat_sessions(company_id)",
             "CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON chat_messages(session_id)",
             "CREATE INDEX IF NOT EXISTS idx_finance_imports_company_id ON finance_imports(company_id)",
             "CREATE INDEX IF NOT EXISTS idx_finance_imports_status ON finance_imports(status)",

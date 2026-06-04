@@ -9,7 +9,7 @@ O projeto hoje cobre dois fluxos principais:
 
 Guia tecnico detalhado:
 
-- [docs/GUIA_DO_COLEGA.md](</C:\Projects\Python aplicação teste\docs\GUIA_DO_COLEGA.md>)
+- [docs/GUIA_DO_COLEGA.md](docs/GUIA_DO_COLEGA.md)
 
 ## Arquitetura
 
@@ -63,7 +63,7 @@ cd ..
 copy backend\.env.example .env
 ```
 
-Variaveis mais importantes no [`.env`](</C:\Projects\Python aplicação teste\.env>):
+Variaveis mais importantes no [`.env`](.env.example):
 
 - `OPENAI_API_KEY`
 - `DATABASE_URL`
@@ -75,7 +75,7 @@ Variaveis mais importantes no [`.env`](</C:\Projects\Python aplicação teste\.e
 Observacoes:
 
 - o backend aceita `.env` tanto na raiz quanto em `backend/.env`
-- o frontend usa [frontend/.env.example](</C:\Projects\Python aplicação teste\frontend\.env.example>) para apontar a API
+- o frontend usa [frontend/.env.example](frontend/.env.example) para apontar a API
 - em ambiente real, troque imediatamente os valores default de seed e segredo JWT
 
 ## Banco e migracoes
@@ -93,10 +93,10 @@ cd backend
 ..\.venv\Scripts\alembic.exe upgrade head
 ```
 
-Se preferir copiar exatamente:
+Se preferir copiar exatamente a partir da raiz do repositorio:
 
 ```powershell
-Set-Location "C:\Projects\Python aplicação teste\backend"
+cd backend
 ..\.venv\Scripts\alembic.exe upgrade head
 ```
 
@@ -128,14 +128,14 @@ Aplicacao web:
 
 ## Seed inicial
 
-Em ambiente local, a aplicacao cria:
+Em ambiente local, a aplicacao cria a empresa default e o primeiro admin a
+partir das variaveis de seed definidas no `.env`.
 
-- empresa default: `Finance Controler`
-- usuario admin default:
-  - email: `admin@finance-controler.local`
-  - senha: `Admin123!`
+Recomendacoes:
 
-Troque isso fora de ambiente local.
+- configure `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` com valores locais antes do primeiro boot
+- nunca publique nem reutilize credenciais de seed em ambiente compartilhado
+- altere a senha bootstrap logo depois do primeiro acesso
 
 ## Endpoints principais
 
@@ -233,27 +233,27 @@ Observacao:
 
 Para testes rapidos:
 
-- [docs/examples/transactions-sample.csv](</C:\Projects\Python aplicação teste\docs\examples\transactions-sample.csv>)
+- [docs/examples/transactions-sample.csv](docs/examples/transactions-sample.csv)
 
 ## Atalhos
 
 ### Windows
 
-- [validar-ambiente.bat](</C:\Projects\Python aplicação teste\validar-ambiente.bat>)
-- [abrir-api.bat](</C:\Projects\Python aplicação teste\abrir-api.bat>)
-- [abrir-frontend.bat](</C:\Projects\Python aplicação teste\abrir-frontend.bat>)
-- [abrir-tudo.bat](</C:\Projects\Python aplicação teste\abrir-tudo.bat>)
-- [rodar-testes.bat](</C:\Projects\Python aplicação teste\rodar-testes.bat>)
-- [parar-tudo.bat](</C:\Projects\Python aplicação teste\parar-tudo.bat>)
+- [validar-ambiente.bat](validar-ambiente.bat)
+- [abrir-api.bat](abrir-api.bat)
+- [abrir-frontend.bat](abrir-frontend.bat)
+- [abrir-tudo.bat](abrir-tudo.bat)
+- [rodar-testes.bat](rodar-testes.bat)
+- [parar-tudo.bat](parar-tudo.bat)
 
 ### macOS
 
-- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>)
-- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>)
-- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>)
-- [abrir-frontend.command](</C:\Projects\Python aplicação teste\abrir-frontend.command>)
-- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>)
-- [rodar-testes.command](</C:\Projects\Python aplicação teste\rodar-testes.command>)
+- [setup-mac.command](setup-mac.command)
+- [validar-ambiente.command](validar-ambiente.command)
+- [abrir-api.command](abrir-api.command)
+- [abrir-frontend.command](abrir-frontend.command)
+- [abrir-tudo.command](abrir-tudo.command)
+- [rodar-testes.command](rodar-testes.command)
 
 ## Qualidade e proximos passos
 

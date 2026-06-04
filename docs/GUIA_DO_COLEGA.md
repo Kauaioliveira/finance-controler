@@ -42,7 +42,7 @@ docker compose up -d postgres
 ### 2. Rodar migracao
 
 ```powershell
-Set-Location "C:\Projects\Python aplicação teste\backend"
+cd backend
 ..\.venv\Scripts\alembic.exe upgrade head
 ```
 
@@ -51,7 +51,7 @@ Se seu terminal reclamar do formato, rode pelo caminho ajustado para sua shell. 
 ### 3. Subir backend
 
 ```powershell
-Set-Location "C:\Projects\Python aplicação teste"
+# na raiz do repositorio
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8010 --reload
 ```
 
@@ -65,7 +65,7 @@ Links uteis:
 Em outro terminal:
 
 ```powershell
-Set-Location "C:\Projects\Python aplicação teste\frontend"
+cd frontend
 npm.cmd run dev
 ```
 
@@ -75,20 +75,20 @@ App React:
 
 ## Credenciais iniciais
 
-No ambiente local, a app cria automaticamente:
+No ambiente local, a app cria automaticamente a empresa e o primeiro admin
+com base nas variaveis `SEED_*` do `.env`.
 
-- empresa: `Finance Controler`
-- admin:
-  - email: `admin@finance-controler.local`
-  - senha: `Admin123!`
+Boas praticas:
 
-Esses valores sao controlados pelo `.env` e devem ser trocados fora de ambiente local.
+- definir `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` localmente antes do primeiro boot
+- trocar a senha bootstrap assim que o acesso inicial for concluido
+- nunca reutilizar credenciais de seed em ambiente compartilhado
 
 ## Variaveis importantes
 
 Arquivo local principal:
 
-- [`.env`](</C:\Projects\Python aplicação teste\.env>)
+- [`.env`](.env.example)
 
 Campos mais importantes:
 
@@ -109,13 +109,13 @@ Campos mais importantes:
 Observacoes:
 
 - o backend aceita `.env` na raiz ou em `backend/.env`
-- o frontend usa [frontend/.env.example](</C:\Projects\Python aplicação teste\frontend\.env.example>) para a URL da API
+- o frontend usa [frontend/.env.example](frontend/.env.example) para a URL da API
 
 ## Endpoints principais
 
 Arquivo das rotas:
 
-- [backend/app/api/routes.py](</C:\Projects\Python aplicação teste\backend\app\api\routes.py>)
+- [backend/app/api/routes.py](backend/app/api/routes.py)
 
 ### Auth
 
@@ -161,9 +161,9 @@ Arquivo das rotas:
 
 Arquivos principais:
 
-- [backend/app/core/security.py](</C:\Projects\Python aplicação teste\backend\app\core\security.py>)
-- [backend/app/services/auth_service.py](</C:\Projects\Python aplicação teste\backend\app\services\auth_service.py>)
-- [backend/app/api/dependencies.py](</C:\Projects\Python aplicação teste\backend\app\api\dependencies.py>)
+- [backend/app/core/security.py](backend/app/core/security.py)
+- [backend/app/services/auth_service.py](backend/app/services/auth_service.py)
+- [backend/app/api/dependencies.py](backend/app/api/dependencies.py)
 
 Fluxo:
 
@@ -176,10 +176,10 @@ Fluxo:
 
 Arquivos principais:
 
-- [backend/app/services/assistant.py](</C:\Projects\Python aplicação teste\backend\app\services\assistant.py>)
-- [backend/app/services/document_service.py](</C:\Projects\Python aplicação teste\backend\app\services\document_service.py>)
-- [backend/app/services/retrieval.py](</C:\Projects\Python aplicação teste\backend\app\services\retrieval.py>)
-- [backend/app/repositories/document_repository.py](</C:\Projects\Python aplicação teste\backend\app\repositories\document_repository.py>)
+- [backend/app/services/assistant.py](backend/app/services/assistant.py)
+- [backend/app/services/document_service.py](backend/app/services/document_service.py)
+- [backend/app/services/retrieval.py](backend/app/services/retrieval.py)
+- [backend/app/repositories/document_repository.py](backend/app/repositories/document_repository.py)
 
 Fluxo:
 
@@ -193,10 +193,10 @@ Fluxo:
 
 Arquivos principais:
 
-- [backend/app/services/finance_parser.py](</C:\Projects\Python aplicação teste\backend\app\services\finance_parser.py>)
-- [backend/app/services/finance_service.py](</C:\Projects\Python aplicação teste\backend\app\services\finance_service.py>)
-- [backend/app/repositories/finance_repository.py](</C:\Projects\Python aplicação teste\backend\app\repositories\finance_repository.py>)
-- [backend/app/schemas/finance.py](</C:\Projects\Python aplicação teste\backend\app\schemas\finance.py>)
+- [backend/app/services/finance_parser.py](backend/app/services/finance_parser.py)
+- [backend/app/services/finance_service.py](backend/app/services/finance_service.py)
+- [backend/app/repositories/finance_repository.py](backend/app/repositories/finance_repository.py)
+- [backend/app/schemas/finance.py](backend/app/schemas/finance.py)
 
 Fluxo:
 
@@ -212,10 +212,10 @@ Fluxo:
 
 Arquivos principais:
 
-- [frontend/src/App.tsx](</C:\Projects\Python aplicação teste\frontend\src\App.tsx>)
-- [frontend/src/auth/AuthContext.tsx](</C:\Projects\Python aplicação teste\frontend\src\auth\AuthContext.tsx>)
-- [frontend/src/lib/api.ts](</C:\Projects\Python aplicação teste\frontend\src\lib\api.ts>)
-- [frontend/src/styles.css](</C:\Projects\Python aplicação teste\frontend\src\styles.css>)
+- [frontend/src/App.tsx](frontend/src/App.tsx)
+- [frontend/src/auth/AuthContext.tsx](frontend/src/auth/AuthContext.tsx)
+- [frontend/src/lib/api.ts](frontend/src/lib/api.ts)
+- [frontend/src/styles.css](frontend/src/styles.css)
 
 Telas:
 
@@ -237,12 +237,12 @@ Pontos importantes:
 
 Primeira bateria de testes incluida:
 
-- [backend/tests/test_api_auth_contracts.py](</C:\Projects\Python aplicação teste\backend\tests\test_api_auth_contracts.py>)
-- [backend/tests/test_finance_api.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_api.py>)
-- [backend/tests/test_finance_parser.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_parser.py>)
-- [backend/tests/test_finance_service_unit.py](</C:\Projects\Python aplicação teste\backend\tests\test_finance_service_unit.py>)
-- [backend/tests/test_auth_service_and_security.py](</C:\Projects\Python aplicação teste\backend\tests\test_auth_service_and_security.py>)
-- [backend/tests/test_user_service_unit.py](</C:\Projects\Python aplicação teste\backend\tests\test_user_service_unit.py>)
+- [backend/tests/test_api_auth_contracts.py](backend/tests/test_api_auth_contracts.py)
+- [backend/tests/test_finance_api.py](backend/tests/test_finance_api.py)
+- [backend/tests/test_finance_parser.py](backend/tests/test_finance_parser.py)
+- [backend/tests/test_finance_service_unit.py](backend/tests/test_finance_service_unit.py)
+- [backend/tests/test_auth_service_and_security.py](backend/tests/test_auth_service_and_security.py)
+- [backend/tests/test_user_service_unit.py](backend/tests/test_user_service_unit.py)
 
 Como rodar:
 
@@ -300,20 +300,20 @@ Escopo coberto agora:
 
 Windows:
 
-- [validar-ambiente.bat](</C:\Projects\Python aplicação teste\validar-ambiente.bat>)
-- [abrir-api.bat](</C:\Projects\Python aplicação teste\abrir-api.bat>)
-- [abrir-frontend.bat](</C:\Projects\Python aplicação teste\abrir-frontend.bat>)
-- [abrir-tudo.bat](</C:\Projects\Python aplicação teste\abrir-tudo.bat>)
-- [rodar-testes.bat](</C:\Projects\Python aplicação teste\rodar-testes.bat>)
+- [validar-ambiente.bat](validar-ambiente.bat)
+- [abrir-api.bat](abrir-api.bat)
+- [abrir-frontend.bat](abrir-frontend.bat)
+- [abrir-tudo.bat](abrir-tudo.bat)
+- [rodar-testes.bat](rodar-testes.bat)
 
 macOS:
 
-- [setup-mac.command](</C:\Projects\Python aplicação teste\setup-mac.command>)
-- [validar-ambiente.command](</C:\Projects\Python aplicação teste\validar-ambiente.command>)
-- [abrir-api.command](</C:\Projects\Python aplicação teste\abrir-api.command>)
-- [abrir-frontend.command](</C:\Projects\Python aplicação teste\abrir-frontend.command>)
-- [abrir-tudo.command](</C:\Projects\Python aplicação teste\abrir-tudo.command>)
-- [rodar-testes.command](</C:\Projects\Python aplicação teste\rodar-testes.command>)
+- [setup-mac.command](setup-mac.command)
+- [validar-ambiente.command](validar-ambiente.command)
+- [abrir-api.command](abrir-api.command)
+- [abrir-frontend.command](abrir-frontend.command)
+- [abrir-tudo.command](abrir-tudo.command)
+- [rodar-testes.command](rodar-testes.command)
 
 ## Proximos passos recomendados
 

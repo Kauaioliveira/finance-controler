@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from app.api import routes
 from app.main import app
 from app.schemas.auth import AuthTokenResponse
+from app.schemas.chat import ChatResponse, HistoryMessage, SessionHistoryResponse
 
 from .conftest import override_current_user
 
@@ -86,3 +89,78 @@ def test_auth_me_returns_current_user_summary(client, admin_user_dict) -> None:
     payload = response.json()
     assert payload["email"] == "admin@finance-controler.local"
     assert payload["company"]["name"] == "Finance Controler"
+
+
+def test_chat_forwards_authenticated_user_to_assistant_service(
+    client,
+    monkeypatch,
+    analyst_user_dict,
+) -> None:
+    override_current_user(analyst_user_dict)
+    captured: dict[str, object] = {}
+
+    async def fake_ask(payload, current_user):
+        captured["session_id"] = payload.session_id
+        captured["message"] = payload.message
+        captured["current_user"] = current_user
+        return ChatResponse(
+            answer="Resposta segura.",
+            session_id=payload.session_id,
+            used_demo_mode=False,
+            sources=[],
+            confidence_hint="low",
+        )
+
+    monkeypatch.setattr(routes.assistant_service, "ask", fake_ask)
+
+    response = client.post(
+        "/chat",
+        json={
+            "message": "Explique a DRE do periodo.",
+            "session_id": "session-analyst-1",
+        },
+    )
+
+    assert response.status_code == 200
+    assert captured["session_id"] == "session-analyst-1"
+    assert captured["message"] == "Explique a DRE do periodo."
+    assert captured["current_user"]["id"] == analyst_user_dict["id"]
+    assert captured["current_user"]["company_id"] == analyst_user_dict["company_id"]
+
+
+def test_session_history_forwards_authenticated_user_to_assistant_service(
+    client,
+    monkeypatch,
+    analyst_user_dict,
+) -> None:
+    override_current_user(analyst_user_dict)
+    captured: dict[str, object] = {}
+
+    def fake_get_session_history(session_id, current_user):
+        captured["session_id"] = session_id
+        captured["current_user"] = current_user
+        return SessionHistoryResponse(
+            session_id=session_id,
+            messages=[
+                HistoryMessage(
+                    role="ai",
+                    content="Historico protegido.",
+                    created_at=datetime(2026, 5, 6, 10, 15, tzinfo=UTC),
+                    sources=[],
+                    confidence_hint="low",
+                )
+            ],
+        )
+
+    monkeypatch.setattr(
+        routes.assistant_service,
+        "get_session_history",
+        fake_get_session_history,
+    )
+
+    response = client.get("/sessions/session-analyst-1/history")
+
+    assert response.status_code == 200
+    assert captured["session_id"] == "session-analyst-1"
+    assert captured["current_user"]["id"] == analyst_user_dict["id"]
+    assert captured["current_user"]["company_id"] == analyst_user_dict["company_id"]

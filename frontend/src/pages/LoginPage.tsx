@@ -7,8 +7,8 @@ export function LoginPage() {
   const { status, login, error, clearError } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState("admin@finance-controler.local");
-  const [password, setPassword] = useState("Admin123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const target = (location.state as { from?: string } | null)?.from ?? "/app/overview";
 
@@ -51,8 +51,8 @@ export function LoginPage() {
           <div className="panel-kicker">Login interno</div>
           <h2>Acesse com email e senha</h2>
           <p>
-            O seed inicial cria um admin para bootstrap. Depois, a gestao passa
-            para a tela de usuarios.
+            Use apenas as credenciais internas provisionadas para o seu perfil.
+            A administracao de acessos segue pela tela de usuarios.
           </p>
 
           <label className="field-stack">
@@ -83,9 +83,7 @@ export function LoginPage() {
             {submitting ? "Entrando..." : "Entrar no cockpit"}
           </button>
 
-          <small className="helper-copy">
-            Sugestao local de estudo: admin@finance-controler.local / Admin123!
-          </small>
+          <small className="helper-copy">Use as credenciais liberadas pelo administrador do ambiente.</small>
         </form>
       </section>
     </div>

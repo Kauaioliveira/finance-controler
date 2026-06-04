@@ -156,11 +156,11 @@ async def patch_user_status(
 @router.post("/chat", response_model=ChatResponse, tags=["chat"])
 async def chat(
     payload: ChatRequest,
-    _: dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ) -> ChatResponse:
     if not payload.message.strip():
         raise ValidationError("A mensagem nao pode ser vazia.")
-    return await assistant_service.ask(payload)
+    return await assistant_service.ask(payload, current_user)
 
 
 @router.get(
@@ -170,9 +170,9 @@ async def chat(
 )
 async def session_history(
     session_id: str,
-    _: dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
 ) -> SessionHistoryResponse:
-    return assistant_service.get_session_history(session_id)
+    return assistant_service.get_session_history(session_id, current_user)
 
 
 @router.post(
