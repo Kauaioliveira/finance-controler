@@ -185,13 +185,14 @@ Recomendacoes:
 
 ## Testes
 
-Primeira bateria de testes ja incluida no projeto:
+Suite atual de testes no backend:
 
 - contratos principais da API
 - auth, seguranca JWT e regras de acesso
 - parser financeiro
 - fluxo de imports, review e relatorio com mocks estaveis
 - regras centrais de `AuthService` e `UserService`
+- unidade do fluxo do assistente (`AssistantService`), com dependencias simuladas
 
 Comandos principais:
 
@@ -219,15 +220,15 @@ Ou:
 make test-backend
 ```
 
-Baseline atual da primeira bateria:
+Numeros atuais (rodar localmente com o comando acima para reproduzir):
 
-- `33` testes passando
-- cobertura inicial do backend em `58%`
+- `38` testes passando
+- cobertura de instrucoes do pacote `backend/app` em torno de `60%` (varia conforme ambiente)
 
 Observacao:
 
-- essa cobertura ainda nao mira o projeto inteiro; ela cobre primeiro as areas de maior risco e mais valor de negocio
-- a proxima fase natural e expandir para documentos/RAG, repositórios com banco e frontend
+- a cobertura ainda e desigual: rotas e servicos centrais tendem a ficar mais altos, enquanto repositorios com SQL direto e fluxos RAG/documentos costumam ficar mais baixos ate ganharem testes de integracao
+- proximos passos naturais: mais testes de integracao com banco, fluxo completo de documentos/RAG e testes automatizados no frontend
 
 ## Arquivo de exemplo
 
@@ -267,7 +268,7 @@ O projeto ja esta mais proximo de um piloto interno real, com:
 
 Evolucoes recomendadas depois desta fase:
 
-- testes automatizados de backend e frontend
+- mais testes de integracao no backend (banco, RAG) e suite no frontend
 - exportacao de relatorios em PDF/XLSX
 - SSO corporativo
 - trilha de auditoria mais detalhada

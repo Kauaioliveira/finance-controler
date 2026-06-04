@@ -235,7 +235,7 @@ Pontos importantes:
 
 ## Testes
 
-Primeira bateria de testes incluida:
+Suite atual no backend (arquivos principais):
 
 - [backend/tests/test_api_auth_contracts.py](backend/tests/test_api_auth_contracts.py)
 - [backend/tests/test_finance_api.py](backend/tests/test_finance_api.py)
@@ -243,6 +243,7 @@ Primeira bateria de testes incluida:
 - [backend/tests/test_finance_service_unit.py](backend/tests/test_finance_service_unit.py)
 - [backend/tests/test_auth_service_and_security.py](backend/tests/test_auth_service_and_security.py)
 - [backend/tests/test_user_service_unit.py](backend/tests/test_user_service_unit.py)
+- [backend/tests/test_assistant_service_unit.py](backend/tests/test_assistant_service_unit.py)
 
 Como rodar:
 
@@ -264,10 +265,10 @@ macOS / Linux:
 ./scripts/test-backend.sh
 ```
 
-Baseline atual:
+Numeros atuais (reproduza com o comando de `pytest` acima):
 
-- `33` testes passando
-- cobertura inicial do backend em `58%`
+- `38` testes passando
+- cobertura de instrucoes do pacote `backend/app` em torno de `60%` (varia conforme ambiente)
 
 Escopo coberto agora:
 
@@ -276,6 +277,11 @@ Escopo coberto agora:
 - RBAC e regras de usuario
 - parser CSV financeiro
 - endpoints principais de importacao, review e relatorio via mocks
+- fluxo unitario do assistente com dependencias simuladas
+
+Observacao:
+
+- repositorios com SQL direto e fluxos RAG/documentos ainda tendem a cobertura mais baixa ate ganharem testes de integracao
 
 ## Onde mexer
 
@@ -317,8 +323,8 @@ macOS:
 
 ## Proximos passos recomendados
 
-1. adicionar testes automatizados de backend
-2. adicionar testes de interface para o frontend
+1. ampliar testes de integracao no backend (banco, documentos, RAG)
+2. adicionar testes automatizados no frontend (unitario ou E2E)
 3. exportar relatorios em PDF ou XLSX
 4. introduzir fila assincorna para uploads grandes
 5. integrar SSO corporativo
