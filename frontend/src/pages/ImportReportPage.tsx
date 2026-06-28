@@ -7,6 +7,7 @@ import { NarrativePanel } from "../components/NarrativePanel";
 import { SummaryStrip } from "../components/SummaryStrip";
 import { TransactionTable } from "../components/TransactionTable";
 import { api } from "../lib/api";
+import { exportToExcel, exportToPDF } from "../lib/exportReport";
 import { formatDateTime, formatImportStatus } from "../lib/formatters";
 import type { FinanceImportResponse, FinanceReportResponse } from "../types";
 
@@ -68,6 +69,22 @@ export function ImportReportPage() {
       cancelled = true;
     };
   }, [importId]);
+
+  function handleExportPDF() {
+    if (!state.report || !state.importItem) return;
+    exportToPDF(state.report, {
+      filename: state.importItem.filename,
+      companyName: state.importItem.company_id,
+    });
+  }
+
+  function handleExportExcel() {
+    if (!state.report || !state.importItem) return;
+    exportToExcel(state.report, {
+      filename: state.importItem.filename,
+      companyName: state.importItem.company_id,
+    });
+  }
 
   async function handleFinalize() {
     setState((current) => ({
@@ -167,11 +184,26 @@ export function ImportReportPage() {
         copy="Esses movimentos ficaram salvos no snapshot mais recente para referencia do time."
       />
 
-      <div className="card-actions">
-        <button className="ghost-button" type="button" onClick={() => navigate("/app/imports")}>
-          Voltar para imports
-        </button>
-      </div>
+      <section className="panel">
+        <div className="panel-kicker">Exportar relatorio</div>
+        <div className="panel-header panel-header-tight">
+          <div>
+            <h2>Baixar relatorio</h2>
+            <p>Exporte o snapshot em PDF para apresentacoes ou em Excel para analise detalhada.</p>
+          </div>
+        </div>
+        <div className="card-actions">
+          <button className="ghost-button" type="button" onClick={handleExportPDF}>
+            Baixar PDF
+          </button>
+          <button className="ghost-button" type="button" onClick={handleExportExcel}>
+            Baixar Excel
+          </button>
+          <button className="ghost-button" type="button" onClick={() => navigate("/app/imports")}>
+            Voltar para imports
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
