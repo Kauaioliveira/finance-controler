@@ -1,5 +1,6 @@
 import { formatCurrency, formatPercent } from "../lib/formatters";
 import type { FinanceCategoryBreakdown } from "../types";
+import { CategoryPieChart } from "./CategoryPieChart";
 
 type CategoryBreakdownProps = {
   categories: FinanceCategoryBreakdown[];
@@ -18,6 +19,8 @@ export function CategoryBreakdown({ categories }: CategoryBreakdownProps) {
           </p>
         </div>
       </div>
+
+      <CategoryPieChart categories={categories} />
 
       <div className="category-list">
         {categories.map((item) => (

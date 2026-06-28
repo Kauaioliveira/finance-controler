@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { ImportsChart } from "../components/ImportsChart";
 import { api } from "../lib/api";
 import { formatCurrency, formatDateTime, formatImportStatus } from "../lib/formatters";
 import type { FinanceImportResponse, FinanceSummary } from "../types";
@@ -120,6 +121,8 @@ export function OverviewPage() {
       </section>
 
       {state.error ? <div className="alert-banner">{state.error}</div> : null}
+
+      <ImportsChart imports={state.imports} />
 
       <section className="panel">
         <div className="panel-header panel-header-tight">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { CategoryBreakdown } from "../components/CategoryBreakdown";
-import { MonthlyPulse } from "../components/MonthlyPulse";
+import { MonthlyChart } from "../components/MonthlyChart";
 import { NarrativePanel } from "../components/NarrativePanel";
 import { SummaryStrip } from "../components/SummaryStrip";
 import { TransactionTable } from "../components/TransactionTable";
@@ -159,7 +159,7 @@ export function ImportReportPage() {
         />
       </div>
 
-      <MonthlyPulse monthly={state.report.monthly} />
+      <MonthlyChart monthly={state.report.monthly} />
 
       <TransactionTable
         transactions={state.report.top_transactions}
