@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-cd /d "%~dp0"
+cd /d "%~dp0..\"
 
 if not exist "frontend\package.json" (
     echo Frontend React nao encontrado em frontend\package.json
@@ -26,5 +26,5 @@ if not exist "frontend\node_modules" (
 
 echo Abrindo frontend React em http://127.0.0.1:5173 ...
 start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 4; Start-Process 'http://127.0.0.1:5173'"
-cd /d "%~dp0frontend"
+cd /d "%~dp0..\frontend"
 npm.cmd run dev

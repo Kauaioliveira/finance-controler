@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-cd /d "%~dp0"
+cd /d "%~dp0..\"
 
 if not exist ".venv\Scripts\python.exe" (
     echo Ambiente virtual nao encontrado em .venv\Scripts\python.exe
@@ -40,7 +40,7 @@ start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Second
 if exist "frontend\package.json" (
     if exist "frontend\node_modules" (
         echo Abrindo frontend React em http://127.0.0.1:5173 ...
-        start "Frontend React" cmd /k "cd /d ""%~dp0frontend"" && npm.cmd run dev"
+        start "Frontend React" cmd /k "cd /d ""%~dp0..\frontend"" && npm.cmd run dev"
         start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 8; Start-Process 'http://127.0.0.1:5173'"
     ) else (
         echo [AVISO] Frontend encontrado, mas as dependencias do Node ainda nao foram instaladas.
