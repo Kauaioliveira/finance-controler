@@ -250,7 +250,7 @@ Como rodar:
 Windows:
 
 ```powershell
-.\rodar-testes.bat
+.\launchers\rodar-testes.bat
 ```
 
 Ou:
@@ -306,20 +306,20 @@ Observacao:
 
 Windows:
 
-- [validar-ambiente.bat](validar-ambiente.bat)
-- [abrir-api.bat](abrir-api.bat)
-- [abrir-frontend.bat](abrir-frontend.bat)
-- [abrir-tudo.bat](abrir-tudo.bat)
-- [rodar-testes.bat](rodar-testes.bat)
+- [validar-ambiente.bat](launchers/validar-ambiente.bat)
+- [abrir-api.bat](launchers/abrir-api.bat)
+- [abrir-frontend.bat](launchers/abrir-frontend.bat)
+- [abrir-tudo.bat](launchers/abrir-tudo.bat)
+- [rodar-testes.bat](launchers/rodar-testes.bat)
 
 macOS:
 
-- [setup-mac.command](setup-mac.command)
-- [validar-ambiente.command](validar-ambiente.command)
-- [abrir-api.command](abrir-api.command)
-- [abrir-frontend.command](abrir-frontend.command)
-- [abrir-tudo.command](abrir-tudo.command)
-- [rodar-testes.command](rodar-testes.command)
+- [setup-mac.command](launchers/setup-mac.command)
+- [validar-ambiente.command](launchers/validar-ambiente.command)
+- [abrir-api.command](launchers/abrir-api.command)
+- [abrir-frontend.command](launchers/abrir-frontend.command)
+- [abrir-tudo.command](launchers/abrir-tudo.command)
+- [rodar-testes.command](launchers/rodar-testes.command)
 
 ## Proximos passos recomendados
 

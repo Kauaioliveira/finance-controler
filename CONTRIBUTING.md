@@ -22,8 +22,8 @@ Antes de alterar o código, leia também:
 
 ```powershell
 Set-Location "C:\Projects\Python aplicação teste"
-.\validar-ambiente.bat
-.\abrir-tudo.bat
+.\launchers\validar-ambiente.bat
+.\launchers\abrir-tudo.bat
 ```
 
 ### macOS
@@ -31,9 +31,9 @@ Set-Location "C:\Projects\Python aplicação teste"
 ```bash
 cd "/caminho/do/projeto"
 chmod +x ./*.command ./scripts/*.sh
-./setup-mac.command
-./validar-ambiente.command
-./abrir-tudo.command
+./launchers/setup-mac.command
+./launchers/validar-ambiente.command
+./launchers/abrir-tudo.command
 ```
 
 ## Estrutura principal
@@ -107,20 +107,20 @@ chmod +x ./*.command ./scripts/*.sh
 
 ```bash
 # Windows
-.\validar-ambiente.bat
+.\launchers\validar-ambiente.bat
 
 # macOS
-./validar-ambiente.command
+./launchers/validar-ambiente.command
 ```
 
 2. Subir a aplicação
 
 ```bash
 # Windows
-.\abrir-tudo.bat
+.\launchers\abrir-tudo.bat
 
 # macOS
-./abrir-tudo.command
+./launchers/abrir-tudo.command
 ```
 
 3. Testar endpoints principais
