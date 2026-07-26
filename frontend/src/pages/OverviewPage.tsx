@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  ArrowDownLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Clock,
+  FileSpreadsheet,
+  Hash,
+  Layers,
+  List,
+  Wallet,
+} from "lucide-react";
 
 import { ImportsChart } from "../components/ImportsChart";
 import { api } from "../lib/api";
@@ -86,36 +97,47 @@ export function OverviewPage() {
 
   return (
     <div className="page-grid">
-      <section className="page-hero panel">
-        <div>
-          <span className="eyebrow">Overview</span>
-          <h2>Panorama rapido das ultimas importacoes processadas</h2>
-          <p>
-            Use esta tela para entender volume, itens pendentes e quais cargas
-            ja viraram relatorio oficial.
-          </p>
+      <section className="page-hero">
+        <div className="panel-kicker">
+          <Wallet aria-hidden="true" />
+          saldo consolidado
+        </div>
+        <div className={summary.net_balance < 0 ? "hero-value amount-expense" : "hero-value"}>
+          {formatCurrency(summary.net_balance)}
+        </div>
+        <div className="hero-delta">
+          <Layers aria-hidden="true" />
+          {state.imports.length} importacoes visiveis · {finalizedImports} finalizadas
         </div>
 
         <div className="hero-metrics">
-          <article className="metric-tile">
-            <span>Saldo consolidado</span>
-            <strong>{formatCurrency(summary.net_balance)}</strong>
-            <small>Somando previews recentes</small>
+          <article className="metric-tile tone-positive">
+            <span>
+              <ArrowDownLeft aria-hidden="true" />
+              entradas
+            </span>
+            <strong>{formatCurrency(summary.total_income)}</strong>
+          </article>
+          <article className="metric-tile tone-warning">
+            <span>
+              <ArrowUpRight aria-hidden="true" />
+              saidas
+            </span>
+            <strong>{formatCurrency(summary.total_expenses)}</strong>
           </article>
           <article className="metric-tile">
-            <span>Transacoes</span>
+            <span>
+              <Hash aria-hidden="true" />
+              transacoes
+            </span>
             <strong>{summary.transaction_count}</strong>
-            <small>Total processado nas cargas visiveis</small>
           </article>
-          <article className="metric-tile">
-            <span>Em revisao</span>
+          <article className="metric-tile tone-review">
+            <span>
+              <Clock aria-hidden="true" />
+              em revisao
+            </span>
             <strong>{importsInReview}</strong>
-            <small>Fluxos aguardando fechamento</small>
-          </article>
-          <article className="metric-tile">
-            <span>Finalizadas</span>
-            <strong>{finalizedImports}</strong>
-            <small>Snapshots ja carimbados</small>
           </article>
         </div>
       </section>
@@ -127,12 +149,16 @@ export function OverviewPage() {
       <section className="panel">
         <div className="panel-header panel-header-tight">
           <div>
-            <div className="panel-kicker">Fila recente</div>
+            <div className="panel-kicker">
+              <List aria-hidden="true" />
+              fila recente
+            </div>
             <h2>Ultimas importacoes</h2>
             <p>Abra uma revisao pendente ou navegue direto para o relatorio persistido.</p>
           </div>
           <Link className="ghost-button link-button" to="/app/imports">
-            Ver todas as importacoes
+            Ver todas
+            <ArrowRight aria-hidden="true" />
           </Link>
         </div>
 
@@ -152,7 +178,9 @@ export function OverviewPage() {
               <article key={item.id} className="import-card">
                 <div className="import-card-head">
                   <div>
-                    <strong>{item.filename}</strong>
+                    <strong>
+                      <FileSpreadsheet size={14} aria-hidden="true" /> {item.filename}
+                    </strong>
                     <small>
                       {formatDateTime(item.created_at)} · {item.uploaded_by_user_name ?? item.uploaded_by_user_id}
                     </small>
@@ -173,10 +201,10 @@ export function OverviewPage() {
 
                 <div className="card-actions">
                   <Link className="ghost-button link-button" to={`/app/imports/${item.id}/review`}>
-                    Abrir revisao
+                    Revisar
                   </Link>
-                  <Link className="primary-button link-button" to={`/app/imports/${item.id}/report`}>
-                    Ver relatorio
+                  <Link className="accent-button link-button" to={`/app/imports/${item.id}/report`}>
+                    Relatorio
                   </Link>
                 </div>
               </article>

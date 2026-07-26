@@ -1,5 +1,15 @@
 import { type FormEvent, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  Database,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Terminal,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { useAuth } from "../auth/AuthContext";
 
@@ -30,43 +40,69 @@ export function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <section className="auth-panel">
-        <div className="auth-copy">
-          <span className="eyebrow">Finance Controler</span>
-          <h1>Acesse a operacao financeira</h1>
+      <div className="auth-copy">
+        <div className="auth-brand">
+          <Wallet aria-hidden="true" />
+          FINANCE CONTROLER
+        </div>
+
+        <div className="auth-copy-main">
+          <span className="eyebrow">
+            <Terminal aria-hidden="true" />
+            operacao financeira interna
+          </span>
+          <h1>Cockpit financeiro para importar, revisar e reportar com precisao</h1>
           <p>
-            A aplicacao agora exige autenticacao, separa papeis por RBAC e
-            persiste importacoes, revisoes e snapshots de relatorio.
+            Importe extratos em CSV, deixe o modelo pre-categorizar, revise antes de
+            fechar e mantenha snapshots persistidos de cada relatorio.
           </p>
 
           <div className="auth-badges">
-            <span>JWT + refresh rotativo</span>
-            <span>RBAC por papel</span>
-            <span>PostgreSQL persistido</span>
+            <span>
+              <ShieldCheck aria-hidden="true" />
+              JWT + refresh
+            </span>
+            <span>
+              <Users aria-hidden="true" />
+              RBAC por papel
+            </span>
+            <span>
+              <Database aria-hidden="true" />
+              PostgreSQL persistido
+            </span>
           </div>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="panel-kicker">Login interno</div>
-          <h2>Acesse com email e senha</h2>
-          <p>
-            Use apenas as credenciais internas provisionadas para o seu perfil.
-            A administracao de acessos segue pela tela de usuarios.
-          </p>
+        <div className="auth-footnote">operacao interna · acesso restrito</div>
+      </div>
+
+      <div className="auth-form">
+        <form onSubmit={handleSubmit}>
+          <div>
+            <div className="panel-kicker">login interno</div>
+            <h2>Acesse com email e senha</h2>
+          </div>
 
           <label className="field-stack">
-            <span>Email</span>
+            <span>
+              <Mail aria-hidden="true" />
+              Email
+            </span>
             <input
               className="toolbar-input"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="username"
+              placeholder="voce@empresa.com"
             />
           </label>
 
           <label className="field-stack">
-            <span>Senha</span>
+            <span>
+              <Lock aria-hidden="true" />
+              Senha
+            </span>
             <input
               className="toolbar-input"
               type="password"
@@ -80,11 +116,14 @@ export function LoginPage() {
 
           <button className="primary-button auth-submit" type="submit" disabled={submitting}>
             {submitting ? "Entrando..." : "Entrar"}
+            {submitting ? null : <ArrowRight aria-hidden="true" />}
           </button>
 
-          <small className="helper-copy">Use as credenciais liberadas pelo administrador do ambiente.</small>
+          <small className="helper-copy">
+            Use as credenciais liberadas pelo administrador do ambiente.
+          </small>
         </form>
-      </section>
+      </div>
     </div>
   );
 }

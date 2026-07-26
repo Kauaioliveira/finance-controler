@@ -1,6 +1,6 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-import { useChartTheme } from "../lib/chartTheme";
+import { chartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
 import type { FinanceCategoryBreakdown } from "../types";
 
@@ -35,7 +35,6 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export function CategoryPieChart({ categories }: CategoryPieChartProps) {
-  const chart = useChartTheme();
   const data = categories
     .filter((c) => c.direction === "expense" && c.total_amount > 0)
     .slice(0, 8)
@@ -63,7 +62,7 @@ export function CategoryPieChart({ categories }: CategoryPieChartProps) {
             {data.map((_, index) => (
               <Cell
                 key={index}
-                fill={chart.series[index]}
+                fill={chartTheme.series[index]}
                 stroke="var(--surface)"
                 strokeWidth={2}
               />
