@@ -10,6 +10,7 @@ import { api } from "../lib/api";
 import { exportToExcel, exportToPDF } from "../lib/exportReport";
 import { formatDateTime, formatImportStatus } from "../lib/formatters";
 import type { FinanceImportResponse, FinanceReportResponse } from "../types";
+import { Download, FileCheck2 } from "lucide-react";
 
 type ReportState = {
   importItem: FinanceImportResponse | null;
@@ -133,7 +134,10 @@ export function ImportReportPage() {
       <section className="panel">
         <div className="panel-header">
           <div>
-            <div className="panel-kicker">Snapshot persistido</div>
+            <div className="panel-kicker">
+        <FileCheck2 aria-hidden="true" />
+        snapshot persistido
+      </div>
             <h2>{state.importItem.filename}</h2>
             <p>
               Gerado em {formatDateTime(state.report.generated_at)} · status{" "}
@@ -185,7 +189,10 @@ export function ImportReportPage() {
       />
 
       <section className="panel">
-        <div className="panel-kicker">Exportar relatorio</div>
+        <div className="panel-kicker">
+        <Download aria-hidden="true" />
+        exportar relatorio
+      </div>
         <div className="panel-header panel-header-tight">
           <div>
             <h2>Baixar relatorio</h2>

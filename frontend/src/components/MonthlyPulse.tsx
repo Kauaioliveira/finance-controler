@@ -1,5 +1,6 @@
 import { formatCurrency } from "../lib/formatters";
 import type { FinanceMonthlySummary } from "../types";
+import { Activity } from "lucide-react";
 
 type MonthlyPulseProps = {
   monthly: FinanceMonthlySummary[];
@@ -8,7 +9,10 @@ type MonthlyPulseProps = {
 export function MonthlyPulse({ monthly }: MonthlyPulseProps) {
   return (
     <section className="panel">
-      <div className="panel-kicker">Ritmo mensal</div>
+      <div className="panel-kicker">
+        <Activity aria-hidden="true" />
+        ritmo mensal
+      </div>
       <div className="panel-header">
         <div>
           <h2>Batimento das entradas e saidas</h2>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { UserPlus, Users } from "lucide-react";
 
 import { api } from "../lib/api";
 import { formatRoleLabel } from "../lib/formatters";
@@ -149,7 +150,10 @@ export function UserSettingsPage() {
       <section className="panel">
         <div className="panel-header">
           <div>
-            <div className="panel-kicker">Administracao</div>
+            <div className="panel-kicker">
+              <UserPlus aria-hidden="true" />
+              administracao
+            </div>
             <h2>Gestao basica de usuarios</h2>
             <p>
               Crie acessos para admin, analyst e viewer, ajuste papeis e
@@ -220,7 +224,10 @@ export function UserSettingsPage() {
       <section className="panel">
         <div className="panel-header panel-header-tight">
           <div>
-            <div className="panel-kicker">Equipe interna</div>
+            <div className="panel-kicker">
+              <Users aria-hidden="true" />
+              equipe interna
+            </div>
             <h2>Usuarios ativos e perfis de acesso</h2>
           </div>
         </div>

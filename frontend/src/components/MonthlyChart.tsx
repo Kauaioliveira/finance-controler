@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { LineChart } from "lucide-react";
 
 import { chartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
@@ -52,7 +53,10 @@ export function MonthlyChart({ monthly }: MonthlyChartProps) {
 
   return (
     <section className="panel">
-      <div className="panel-kicker">Evolucao mensal</div>
+      <div className="panel-kicker">
+        <LineChart aria-hidden="true" />
+        evolucao mensal
+      </div>
       <div className="panel-header">
         <div>
           <h2>Entradas e saidas por mes</h2>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { ListChecks, Search } from "lucide-react";
 
 import { ReviewTable } from "../components/ReviewTable";
 import { SummaryStrip } from "../components/SummaryStrip";
@@ -211,7 +212,10 @@ export function ImportReviewPage() {
       <section className="panel">
         <div className="panel-header">
           <div>
-            <div className="panel-kicker">Mesa de revisao</div>
+            <div className="panel-kicker">
+              <ListChecks aria-hidden="true" />
+              mesa de revisao
+            </div>
             <h2>{state.importItem.filename}</h2>
             <p>
               Status atual:{" "}
@@ -245,18 +249,21 @@ export function ImportReviewPage() {
         ) : null}
 
         <div className="review-toolbar">
-          <input
-            className="toolbar-input"
-            value={state.query}
-            onChange={(event) =>
-              setState((current) => ({
-                ...current,
-                query: event.target.value,
-                page: 1,
-              }))
-            }
-            placeholder="Buscar por descricao"
-          />
+          <div className="search-field">
+            <Search aria-hidden="true" />
+            <input
+              className="toolbar-input"
+              value={state.query}
+              onChange={(event) =>
+                setState((current) => ({
+                  ...current,
+                  query: event.target.value,
+                  page: 1,
+                }))
+              }
+              placeholder="Buscar por descricao"
+            />
+          </div>
 
           <select
             className="toolbar-select"

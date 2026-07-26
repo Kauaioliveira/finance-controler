@@ -1,5 +1,6 @@
 import { formatCurrency, formatDate } from "../lib/formatters";
 import type { FinanceInsight, FinancePersistedTransaction } from "../types";
+import { Lightbulb } from "lucide-react";
 
 type NarrativePanelProps = {
   narrative: string;
@@ -14,7 +15,10 @@ export function NarrativePanel({
 }: NarrativePanelProps) {
   return (
     <section className="panel panel-story">
-      <div className="panel-kicker">Relatorio executivo</div>
+      <div className="panel-kicker">
+        <Lightbulb aria-hidden="true" />
+        relatorio executivo
+      </div>
       <div className="panel-header">
         <div>
           <h2>Leitura pronta para o time financeiro</h2>

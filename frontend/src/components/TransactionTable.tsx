@@ -1,5 +1,6 @@
 import { formatCurrency, formatDate } from "../lib/formatters";
 import type { FinancePersistedTransaction } from "../types";
+import { Table2 } from "lucide-react";
 
 type TransactionTableProps = {
   transactions: FinancePersistedTransaction[];
@@ -14,7 +15,10 @@ export function TransactionTable({
 }: TransactionTableProps) {
   return (
     <section className="panel panel-table">
-      <div className="panel-kicker">Transacoes</div>
+      <div className="panel-kicker">
+        <Table2 aria-hidden="true" />
+        transacoes
+      </div>
       <div className="panel-header panel-header-tight">
         <div>
           <h2>{title}</h2>

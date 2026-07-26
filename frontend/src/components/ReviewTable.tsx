@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Sparkles } from "lucide-react";
 
 import { formatCurrency, formatDate } from "../lib/formatters";
 import type { FinanceCategoryCatalogItem, FinancePersistedTransaction } from "../types";
@@ -46,7 +47,10 @@ export function ReviewTable({
 
   return (
     <section className="panel panel-table">
-      <div className="panel-kicker">Revisao assistida</div>
+      <div className="panel-kicker">
+        <Sparkles aria-hidden="true" />
+        revisao assistida
+      </div>
       <div className="panel-header panel-header-tight">
         <div>
           <h2>Edite a categoria final antes do fechamento</h2>
@@ -83,7 +87,13 @@ export function ReviewTable({
                 <small>
                   {formatDate(item.transaction_date)} · linha {item.row_number} ·{" "}
                   {item.direction === "expense" ? "saida" : "entrada"} ·{" "}
-                  {formatCurrency(item.amount)}
+                  <span
+                    className={
+                      item.direction === "expense" ? "amount-expense" : "amount-income"
+                    }
+                  >
+                    {formatCurrency(item.amount)}
+                  </span>
                 </small>
               </div>
 
@@ -134,13 +144,15 @@ export function ReviewTable({
               </div>
 
               <div className="review-cell review-actions">
+                {/* Sujo destaca em acento; limpo recua para ghost e le "Salvo",
+                    para o analista varrer a coluna e ver o que falta fechar. */}
                 <button
-                  className="primary-button"
+                  className={dirty ? "accent-button" : "ghost-button"}
                   type="button"
                   disabled={!dirty || savingId === item.id}
                   onClick={() => void onSave(item.id, draft.finalCategory, draft.reviewNotes)}
                 >
-                  {savingId === item.id ? "Salvando..." : "Salvar"}
+                  {savingId === item.id ? "Salvando..." : dirty ? "Salvar" : "Salvo"}
                 </button>
               </div>
             </div>

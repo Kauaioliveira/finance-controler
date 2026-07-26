@@ -1,6 +1,7 @@
 import { formatCurrency, formatPercent } from "../lib/formatters";
 import type { FinanceCategoryBreakdown } from "../types";
 import { CategoryPieChart } from "./CategoryPieChart";
+import { PieChart } from "lucide-react";
 
 type CategoryBreakdownProps = {
   categories: FinanceCategoryBreakdown[];
@@ -9,7 +10,10 @@ type CategoryBreakdownProps = {
 export function CategoryBreakdown({ categories }: CategoryBreakdownProps) {
   return (
     <section className="panel">
-      <div className="panel-kicker">Mapa de categorias</div>
+      <div className="panel-kicker">
+        <PieChart aria-hidden="true" />
+        mapa de categorias
+      </div>
       <div className="panel-header">
         <div>
           <h2>Onde o caixa esta concentrado</h2>

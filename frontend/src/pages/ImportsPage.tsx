@@ -5,6 +5,7 @@ import { UploadPanel } from "../components/UploadPanel";
 import { api } from "../lib/api";
 import { formatDateTime, formatImportStatus } from "../lib/formatters";
 import type { ApiConfig, FinanceImportResponse, FinanceImportStatus } from "../types";
+import { History } from "lucide-react";
 
 type ImportsState = {
   config: ApiConfig | null;
@@ -105,7 +106,10 @@ export function ImportsPage() {
       <section className="panel">
         <div className="panel-header">
           <div>
-            <div className="panel-kicker">Historico persistido</div>
+            <div className="panel-kicker">
+        <History aria-hidden="true" />
+        historico persistido
+      </div>
             <h2>Lista de importacoes financeiras</h2>
             <p>
               Filtre por status para acompanhar uploads recem processados, cargas

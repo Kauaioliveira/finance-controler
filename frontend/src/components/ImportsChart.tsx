@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { BarChart3 } from "lucide-react";
 
 import { chartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
@@ -62,7 +63,10 @@ export function ImportsChart({ imports }: ImportsChartProps) {
 
   return (
     <section className="panel">
-      <div className="panel-kicker">Comparativo de importacoes</div>
+      <div className="panel-kicker">
+        <BarChart3 aria-hidden="true" />
+        comparativo de importacoes
+      </div>
       <div className="panel-header panel-header-tight">
         <div>
           <h2>Entradas e saidas por importacao</h2>

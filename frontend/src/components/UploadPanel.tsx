@@ -1,4 +1,5 @@
 import { type FormEvent, useRef, useState } from "react";
+import { UploadCloud } from "lucide-react";
 
 type UploadPanelProps = {
   onImport: (file: File) => Promise<void>;
@@ -28,7 +29,10 @@ export function UploadPanel({
 
   return (
     <section className="panel panel-upload">
-      <div className="panel-kicker">Entrada de dados</div>
+      <div className="panel-kicker">
+        <UploadCloud aria-hidden="true" />
+        entrada de dados
+      </div>
       <div className="panel-header">
         <div>
           <h2>Importe um CSV para persistir a analise</h2>
