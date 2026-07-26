@@ -45,7 +45,7 @@ compose.yaml
 
 ## Requisitos
 
-- Python 3.14+
+- Python 3.12 (versao validada: 3.12.10)
 - Node.js 20+
 - Docker Desktop
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from pgvector.psycopg import Vector
+from pgvector import Vector
 from psycopg.types.json import Jsonb
 
 from app.core.exceptions import NotFoundError
