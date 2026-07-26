@@ -89,7 +89,7 @@ export function OverviewPage() {
       <section className="page-hero panel">
         <div>
           <span className="eyebrow">Overview</span>
-          <h3>Panorama rapido das ultimas importacoes processadas.</h3>
+          <h2>Panorama rapido das ultimas importacoes processadas</h2>
           <p>
             Use esta tela para entender volume, itens pendentes e quais cargas
             ja viraram relatorio oficial.
