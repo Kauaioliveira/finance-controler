@@ -1,10 +1,12 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
 import { api } from "../lib/api";
 import { formatRoleLabel } from "../lib/formatters";
 import type { ApiConfig, HealthStatus } from "../types";
+
+import { ThemeToggle } from "./ThemeToggle";
 
 type ShellState = {
   health: HealthStatus | null;
@@ -20,6 +22,7 @@ const INITIAL_STATE: ShellState = {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [shellState, setShellState] = useState<ShellState>(INITIAL_STATE);
 
   useEffect(() => {
@@ -77,18 +80,17 @@ export function AppLayout() {
     [user?.role],
   );
 
+  const currentPageLabel = useMemo(() => {
+    const match = navItems.find((item) => location.pathname.startsWith(item.to));
+    return match?.label ?? "Overview";
+  }, [location.pathname, navItems]);
+
   return (
     <div className="workspace-shell">
-      <div className="background-grid" />
-
       <aside className="sidebar">
         <div className="brand-block">
-          <span className="eyebrow">Finance Controler</span>
-          <h1>Cockpit financeiro para operacao interna.</h1>
-          <p>
-            Upload, revisao humana, snapshots persistidos e leitura pronta para o
-            fechamento.
-          </p>
+          <h1>Finance Controler</h1>
+          <p>Operacao financeira interna</p>
         </div>
 
         <nav className="side-nav">
@@ -123,8 +125,8 @@ export function AppLayout() {
       <div className="workspace-main">
         <header className="topbar">
           <div>
-            <span className="eyebrow">Operacao</span>
-            <h2>Mesa financeira autenticada e pronta para revisao.</h2>
+            <h2>{currentPageLabel}</h2>
+            <p>{user?.company.name}</p>
           </div>
 
           <div className="status-cluster">
@@ -145,6 +147,8 @@ export function AppLayout() {
                 {shellState.config?.supported_finance_extensions.join(", ") ?? "carregando"}
               </small>
             </article>
+
+            <ThemeToggle />
           </div>
         </header>
 

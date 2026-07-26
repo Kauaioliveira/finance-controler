@@ -30,11 +30,10 @@ export function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <div className="background-grid" />
       <section className="auth-panel">
         <div className="auth-copy">
           <span className="eyebrow">Finance Controler</span>
-          <h1>Entre na mesa operacional financeira.</h1>
+          <h1>Acesse a operacao financeira</h1>
           <p>
             A aplicacao agora exige autenticacao, separa papeis por RBAC e
             persiste importacoes, revisoes e snapshots de relatorio.
@@ -80,7 +79,7 @@ export function LoginPage() {
           {error ? <div className="alert-banner">{error}</div> : null}
 
           <button className="primary-button auth-submit" type="submit" disabled={submitting}>
-            {submitting ? "Entrando..." : "Entrar no cockpit"}
+            {submitting ? "Entrando..." : "Entrar"}
           </button>
 
           <small className="helper-copy">Use as credenciais liberadas pelo administrador do ambiente.</small>

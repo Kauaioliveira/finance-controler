@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finance Controler</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Apply the stored theme before first paint so the page never flashes
+      // the wrong background.
+      (function () {
+        try {
+          var stored = localStorage.getItem("finance-controler:theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch (error) {
+          /* storage blocked: the CSS media query still applies */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

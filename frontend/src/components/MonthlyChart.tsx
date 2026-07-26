@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useChartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
 import type { FinanceMonthlySummary } from "../types";
 
@@ -43,6 +44,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function MonthlyChart({ monthly }: MonthlyChartProps) {
+  const chart = useChartTheme();
   const data = monthly.map((item) => ({
     mes: item.month,
     Entradas: item.income,
@@ -63,12 +65,12 @@ export function MonthlyChart({ monthly }: MonthlyChartProps) {
           <BarChart data={data} barGap={4} barCategoryGap="32%">
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.07)"
+              stroke={chart.grid}
               vertical={false}
             />
             <XAxis
               dataKey="mes"
-              tick={{ fill: "#98aac7", fontSize: 12 }}
+              tick={{ fill: chart.axis, fontSize: 12 }}
               axisLine={false}
               tickLine={false}
             />
@@ -76,20 +78,20 @@ export function MonthlyChart({ monthly }: MonthlyChartProps) {
               tickFormatter={(v: number) =>
                 v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`
               }
-              tick={{ fill: "#98aac7", fontSize: 11 }}
+              tick={{ fill: chart.axis, fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               width={64}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: "rgba(255,255,255,0.04)" }}
+              cursor={{ fill: chart.cursor }}
             />
             <Legend
-              wrapperStyle={{ paddingTop: 16, color: "#98aac7", fontSize: 13 }}
+              wrapperStyle={{ paddingTop: 16, color: chart.axis, fontSize: 13 }}
             />
-            <Bar dataKey="Entradas" fill="#6de2d1" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="Saidas" fill="#ff8674" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="Entradas" fill={chart.income} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Saidas" fill={chart.expense} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

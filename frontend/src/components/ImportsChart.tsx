@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useChartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
 import type { FinanceImportResponse } from "../types";
 
@@ -48,6 +49,7 @@ function shortenFilename(name: string): string {
 }
 
 export function ImportsChart({ imports }: ImportsChartProps) {
+  const chart = useChartTheme();
   const data = imports
     .filter((item) => item.summary_preview?.summary)
     .map((item) => ({
@@ -71,14 +73,10 @@ export function ImportsChart({ imports }: ImportsChartProps) {
       <div className="chart-wrap">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={data} barGap={4} barCategoryGap="32%">
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.07)"
-              vertical={false}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} vertical={false} />
             <XAxis
               dataKey="arquivo"
-              tick={{ fill: "#98aac7", fontSize: 11 }}
+              tick={{ fill: chart.axis, fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
@@ -86,20 +84,15 @@ export function ImportsChart({ imports }: ImportsChartProps) {
               tickFormatter={(v: number) =>
                 v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`
               }
-              tick={{ fill: "#98aac7", fontSize: 11 }}
+              tick={{ fill: chart.axis, fontSize: 11 }}
               axisLine={false}
               tickLine={false}
               width={64}
             />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: "rgba(255,255,255,0.04)" }}
-            />
-            <Legend
-              wrapperStyle={{ paddingTop: 12, color: "#98aac7", fontSize: 13 }}
-            />
-            <Bar dataKey="Entradas" fill="#6de2d1" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="Saidas" fill="#ff8674" radius={[6, 6, 0, 0]} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: chart.cursor }} />
+            <Legend wrapperStyle={{ paddingTop: 12, color: chart.axis, fontSize: 13 }} />
+            <Bar dataKey="Entradas" fill={chart.income} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Saidas" fill={chart.expense} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

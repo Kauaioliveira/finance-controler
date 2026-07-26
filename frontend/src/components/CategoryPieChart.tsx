@@ -1,20 +1,8 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { useChartTheme } from "../lib/chartTheme";
 import { formatCurrency } from "../lib/formatters";
 import type { FinanceCategoryBreakdown } from "../types";
-
-const CHART_COLORS = [
-  "#6de2d1",
-  "#ff8674",
-  "#f4c66c",
-  "#8aa8ff",
-  "#8ce6a0",
-  "#c4a0ff",
-  "#ffb347",
-  "#4fc3f7",
-  "#f06292",
-  "#aed581",
-];
 
 type CategoryPieChartProps = {
   categories: FinanceCategoryBreakdown[];
@@ -39,7 +27,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
     <div className="chart-tooltip">
       <strong>{item.name}</strong>
       <div>{formatCurrency(item.value)}</div>
-      <div style={{ color: "#98aac7" }}>
+      <div className="chart-tooltip-label">
         {(item.payload.share * 100).toFixed(1)}% das saidas
       </div>
     </div>
@@ -47,6 +35,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export function CategoryPieChart({ categories }: CategoryPieChartProps) {
+  const chart = useChartTheme();
   const data = categories
     .filter((c) => c.direction === "expense" && c.total_amount > 0)
     .slice(0, 8)
@@ -74,8 +63,9 @@ export function CategoryPieChart({ categories }: CategoryPieChartProps) {
             {data.map((_, index) => (
               <Cell
                 key={index}
-                fill={CHART_COLORS[index % CHART_COLORS.length]}
-                stroke="transparent"
+                fill={chart.series[index]}
+                stroke="var(--surface)"
+                strokeWidth={2}
               />
             ))}
           </Pie>
@@ -83,7 +73,7 @@ export function CategoryPieChart({ categories }: CategoryPieChartProps) {
           <Legend
             iconType="circle"
             iconSize={8}
-            wrapperStyle={{ fontSize: 12, color: "#98aac7" }}
+            wrapperStyle={{ fontSize: 12, color: "var(--text-muted)" }}
           />
         </PieChart>
       </ResponsiveContainer>
